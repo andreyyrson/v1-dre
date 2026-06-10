@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: dextro-api
+    runtime: docker
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: BOMCONTROLE_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "480"
+      - key: ADMIN_USERNAME
+        value: admin@dextro
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CACHE_TTL_CONTAS
+        value: "300"
+      - key: CACHE_TTL_EMPRESAS
+        value: "1800"
+      - key: MAX_PERIODO_DIAS
+        value: "90"
+      - key: API_RETRY_MAX
+        value: "3"
+      - key: API_RETRY_DELAY
+        value: "2.0"
