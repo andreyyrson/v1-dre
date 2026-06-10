@@ -1,8 +1,0 @@
-{
-  "buildCommand": "cd dextro-BI/frontend && npm install && npm run build",
-  "outputDirectory": "dextro-BI/frontend/dist",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
