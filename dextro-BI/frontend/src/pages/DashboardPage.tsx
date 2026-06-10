@@ -163,7 +163,7 @@ export default function DashboardPage() {
                   placeholder="Selecione..."
                 >
                   {empresas.map((e) => (
-                    <option key={e.Id} value={e.Id}>
+                    <option key={e.Id} value={String(e.Id)}>
                       {e.Nome} ({e.Documento})
                     </option>
                   ))}
