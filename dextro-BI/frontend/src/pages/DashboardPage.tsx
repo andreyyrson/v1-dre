@@ -104,7 +104,7 @@ export default function DashboardPage() {
         data_inicial: dataInicial,
         data_final: dataFinal,
         apenas_abertas: false,
-        sort_by: 'DataVencimento',
+        sort_by: 'data_vencimento',
         order: 'asc',
       });
       const itens = response.Itens || [];
