@@ -19,10 +19,11 @@ import {
   Grid,
   useToast,
   Spinner,
+  Checkbox,
 } from '@chakra-ui/react';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
-import { fetchEmpresas, fetchContasPagar, refreshContas } from '../lib/api';
+import { fetchEmpresas, fetchContasPagar, refreshContas, downloadCsv } from '../lib/api';
 
 interface Empresa {
   Id: number;
@@ -49,6 +50,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [kpis, setKpis] = useState({ totalPago: 0, vencidas: 0, agendadas: 0 });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [apenasAbertas, setApenasAbertas] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -98,12 +101,13 @@ export default function DashboardPage() {
       return;
     }
     setLoading(true);
+    setSelectedIds(new Set());
     try {
       const response = await fetchContasPagar({
         id_empresa: Number(empresaId),
         data_inicial: dataInicial,
         data_final: dataFinal,
-        apenas_abertas: false,
+        apenas_abertas: apenasAbertas,
         sort_by: 'data_vencimento',
         order: 'asc',
       });
@@ -128,6 +132,62 @@ export default function DashboardPage() {
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleSelectAll(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.checked) {
+      setSelectedIds(new Set(contas.map((c) => c.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }
+
+  function handleSelectOne(id: string) {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  }
+
+  async function handleExport() {
+    if (!empresaId || !dataInicial || !dataFinal) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Selecione empresa e período',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    try {
+      await downloadCsv({
+        id_empresa: Number(empresaId),
+        data_inicial: dataInicial,
+        data_final: dataFinal,
+        apenas_abertas: apenasAbertas,
+        sort_by: 'data_vencimento',
+        order: 'asc',
+        ids: selectedIds.size > 0 ? Array.from(selectedIds) : undefined,
+      });
+      toast({
+        title: 'Exportação iniciada',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Erro ao exportar',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   }
 
@@ -200,7 +260,7 @@ export default function DashboardPage() {
                 />
               </FormControl>
             </Grid>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mt={4}>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
               <Button
                 colorScheme="blue"
                 onClick={handleBuscar}
@@ -218,7 +278,22 @@ export default function DashboardPage() {
               >
                 Atualizar
               </Button>
+              <Button
+                colorScheme="green"
+                onClick={handleExport}
+                isDisabled={contas.length === 0}
+              >
+                Exportar CSV
+              </Button>
             </Grid>
+            <Box mt={4}>
+              <Checkbox
+                isChecked={apenasAbertas}
+                onChange={(e) => setApenasAbertas(e.target.checked)}
+              >
+                Apenas contas em aberto
+              </Checkbox>
+            </Box>
           </CardBody>
         </Card>
 
@@ -234,6 +309,13 @@ export default function DashboardPage() {
               <Table variant="simple">
                 <Thead>
                   <Tr>
+                    <Th width="40px">
+                      <Checkbox
+                        isChecked={selectedIds.size === contas.length && contas.length > 0}
+                        isIndeterminate={selectedIds.size > 0 && selectedIds.size < contas.length}
+                        onChange={handleSelectAll}
+                      />
+                    </Th>
                     <Th>Nome</Th>
                     <Th>Vencimento</Th>
                     <Th>Status</Th>
@@ -246,6 +328,12 @@ export default function DashboardPage() {
                     const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
                     return (
                       <Tr key={conta.id}>
+                        <Td>
+                          <Checkbox
+                            isChecked={selectedIds.has(conta.id)}
+                            onChange={() => handleSelectOne(conta.id)}
+                          />
+                        </Td>
                         <Td>{conta.descricao || 'Sem descrição'}</Td>
                         <Td>
                           {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
@@ -265,7 +353,7 @@ export default function DashboardPage() {
                   })}
                   {contas.length === 0 && (
                     <Tr>
-                      <Td colSpan={4} textAlign="center" py={8} color="gray.500">
+                      <Td colSpan={5} textAlign="center" py={8} color="gray.500">
                         Nenhuma conta encontrada. Selecione uma empresa e período para buscar.
                       </Td>
                     </Tr>
