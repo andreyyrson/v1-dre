@@ -2,7 +2,6 @@ services:
   - type: web
     name: dextro-api
     runtime: docker
-    rootDir: backend
     envVars:
       - key: DATABASE_URL
         sync: false
