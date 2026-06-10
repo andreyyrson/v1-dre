@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copiar arquivos do backend
 COPY backend/pyproject.toml .
+COPY backend/.env .
 COPY backend/app/ ./app/
 
 # Instalar dependências Python
