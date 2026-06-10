@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <Box minH="100vh" bg="gray.50">
       <Flex as="header" bg="white" shadow="md" px={6} py={4} justify="space-between" align="center">
         <Heading as="h1" size="lg" color="gray.900">
-          Dashboard Laura
+          Contas a Pagar
         </Heading>
         <Button colorScheme="red" onClick={handleLogout}>
           Sair
