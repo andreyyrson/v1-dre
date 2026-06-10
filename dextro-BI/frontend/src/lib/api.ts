@@ -82,7 +82,7 @@ export interface ExportParams {
   ids?: string[];
 }
 
-export async function downloadCsv(params: ExportParams): Promise<void> {
+export async function downloadExcel(params: ExportParams): Promise<void> {
   const query: Record<string, string> = {
     id_empresa: String(params.id_empresa),
     data_inicial: params.data_inicial,
@@ -104,7 +104,7 @@ export async function downloadCsv(params: ExportParams): Promise<void> {
   link.href = url;
   link.setAttribute(
     "download",
-    `contas_pagar_${params.id_empresa}_${params.data_inicial}_${params.data_final}.csv`,
+    `contas_pagar_${params.id_empresa}_${params.data_inicial}_${params.data_final}.xlsx`,
   );
   document.body.appendChild(link);
   link.click();

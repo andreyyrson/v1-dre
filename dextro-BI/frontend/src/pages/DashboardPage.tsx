@@ -20,10 +20,11 @@ import {
   useToast,
   Spinner,
   Checkbox,
+  Heading,
 } from '@chakra-ui/react';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
-import { fetchEmpresas, fetchContasPagar, refreshContas, downloadCsv } from '../lib/api';
+import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../lib/api';
 
 interface Empresa {
   Id: number;
@@ -37,6 +38,12 @@ interface Conta {
   data_vencimento: string | null;
   data_quitacao: string | null;
   valor: number;
+  id_categoria: number | null;
+  categoria: string | null;
+  id_fornecedor: number | null;
+  fornecedor: string | null;
+  id_conta_financeira: number | null;
+  conta_financeira: string | null;
 }
 
 export default function DashboardPage() {
@@ -52,6 +59,12 @@ export default function DashboardPage() {
   const [kpis, setKpis] = useState({ totalPago: 0, vencidas: 0, agendadas: 0 });
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [apenasAbertas, setApenasAbertas] = useState(false);
+  const [categoriaId, setCategoriaId] = useState('');
+  const [fornecedorId, setFornecedorId] = useState('');
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
+  const [contaFinanceiraId, setContaFinanceiraId] = useState('');
+  const [filteredContas, setFilteredContas] = useState<Conta[]>([]);
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -75,6 +88,12 @@ export default function DashboardPage() {
       });
   }, [navigate, toast]);
 
+  useEffect(() => {
+    if (contas.length > 0) {
+      applyFilters(contas);
+    }
+  }, [categoriaId, fornecedorId, valorMin, valorMax, contaFinanceiraId]);
+
   function calcularKpis(contas: Conta[]) {
     const hoje = new Date();
     const totalPago = contas
@@ -87,6 +106,69 @@ export default function DashboardPage() {
       .filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) >= hoje)
       .reduce((sum, c) => sum + c.valor, 0);
     setKpis({ totalPago, vencidas, agendadas });
+  }
+
+  function applyFilters(contasList: Conta[]) {
+    let filtered = contasList;
+
+    if (categoriaId) {
+      filtered = filtered.filter((c) => String(c.id_categoria) === categoriaId);
+    }
+    if (fornecedorId) {
+      filtered = filtered.filter((c) => String(c.id_fornecedor) === fornecedorId);
+    }
+    if (valorMin) {
+      filtered = filtered.filter((c) => c.valor >= Number(valorMin));
+    }
+    if (valorMax) {
+      filtered = filtered.filter((c) => c.valor <= Number(valorMax));
+    }
+    if (contaFinanceiraId) {
+      filtered = filtered.filter((c) => String(c.id_conta_financeira) === contaFinanceiraId);
+    }
+
+    setFilteredContas(filtered);
+    calcularKpis(filtered);
+  }
+
+  function getUniqueCategorias() {
+    const unique = new Map();
+    contas.forEach((c) => {
+      if (c.id_categoria && c.categoria) {
+        unique.set(String(c.id_categoria), c.categoria);
+      }
+    });
+    return Array.from(unique.entries()).map(([id, nome]) => ({ id, nome }));
+  }
+
+  function getUniqueFornecedores() {
+    const unique = new Map();
+    contas.forEach((c) => {
+      if (c.id_fornecedor && c.fornecedor) {
+        unique.set(String(c.id_fornecedor), c.fornecedor);
+      }
+    });
+    return Array.from(unique.entries()).map(([id, nome]) => ({ id, nome }));
+  }
+
+  function getUniqueContasFinanceiras() {
+    const unique = new Map();
+    contas.forEach((c) => {
+      if (c.id_conta_financeira && c.conta_financeira) {
+        unique.set(String(c.id_conta_financeira), c.conta_financeira);
+      }
+    });
+    return Array.from(unique.entries()).map(([id, nome]) => ({ id, nome }));
+  }
+
+  function handleLimparFiltros() {
+    setCategoriaId('');
+    setFornecedorId('');
+    setValorMin('');
+    setValorMax('');
+    setContaFinanceiraId('');
+    setFilteredContas(contas);
+    calcularKpis(contas);
   }
 
   async function handleBuscar() {
@@ -113,7 +195,7 @@ export default function DashboardPage() {
       });
       const itens = response.contas || [];
       setContas(itens);
-      calcularKpis(itens);
+      applyFilters(itens);
       toast({
         title: 'Busca realizada',
         description: `${itens.length} contas encontradas`,
@@ -137,7 +219,7 @@ export default function DashboardPage() {
 
   function handleSelectAll(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.checked) {
-      setSelectedIds(new Set(contas.map((c) => c.id)));
+      setSelectedIds(new Set(filteredContas.map((c) => c.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -165,7 +247,7 @@ export default function DashboardPage() {
       return;
     }
     try {
-      await downloadCsv({
+      await downloadExcel({
         id_empresa: Number(empresaId),
         data_inicial: dataInicial,
         data_final: dataFinal,
@@ -283,7 +365,7 @@ export default function DashboardPage() {
                 onClick={handleExport}
                 isDisabled={contas.length === 0}
               >
-                Exportar CSV
+                Exportar Excel
               </Button>
             </Grid>
             <Box mt={4}>
@@ -294,6 +376,84 @@ export default function DashboardPage() {
                 Apenas contas em aberto
               </Checkbox>
             </Box>
+          </CardBody>
+        </Card>
+
+        <Card mb={6}>
+          <CardBody>
+            <Heading as="h3" size="md" mb={4}>
+              Filtros Adicionais
+            </Heading>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+              <FormControl>
+                <FormLabel>Categoria</FormLabel>
+                <Select
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value)}
+                  placeholder="Todas"
+                >
+                  {getUniqueCategorias().map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Fornecedor</FormLabel>
+                <Select
+                  value={fornecedorId}
+                  onChange={(e) => setFornecedorId(e.target.value)}
+                  placeholder="Todos"
+                >
+                  {getUniqueFornecedores().map((forn) => (
+                    <option key={forn.id} value={forn.id}>
+                      {forn.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Valor Mínimo</FormLabel>
+                <Input
+                  type="number"
+                  value={valorMin}
+                  onChange={(e) => setValorMin(e.target.value)}
+                  placeholder="R$ 0,00"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Valor Máximo</FormLabel>
+                <Input
+                  type="number"
+                  value={valorMax}
+                  onChange={(e) => setValorMax(e.target.value)}
+                  placeholder="R$ 0,00"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Conta Financeira</FormLabel>
+                <Select
+                  value={contaFinanceiraId}
+                  onChange={(e) => setContaFinanceiraId(e.target.value)}
+                  placeholder="Todas"
+                >
+                  {getUniqueContasFinanceiras().map((conta) => (
+                    <option key={conta.id} value={conta.id}>
+                      {conta.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Button
+              mt={4}
+              colorScheme="gray"
+              onClick={handleLimparFiltros}
+              isDisabled={contas.length === 0}
+            >
+              Limpar Filtros
+            </Button>
           </CardBody>
         </Card>
 
@@ -311,8 +471,8 @@ export default function DashboardPage() {
                   <Tr>
                     <Th width="40px">
                       <Checkbox
-                        isChecked={selectedIds.size === contas.length && contas.length > 0}
-                        isIndeterminate={selectedIds.size > 0 && selectedIds.size < contas.length}
+                        isChecked={selectedIds.size === filteredContas.length && filteredContas.length > 0}
+                        isIndeterminate={selectedIds.size > 0 && selectedIds.size < filteredContas.length}
                         onChange={handleSelectAll}
                       />
                     </Th>
@@ -323,7 +483,7 @@ export default function DashboardPage() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {contas.map((conta) => {
+                  {filteredContas.map((conta) => {
                     const isPago = !!conta.data_quitacao;
                     const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
                     return (
@@ -351,7 +511,7 @@ export default function DashboardPage() {
                       </Tr>
                     );
                   })}
-                  {contas.length === 0 && (
+                  {filteredContas.length === 0 && (
                     <Tr>
                       <Td colSpan={5} textAlign="center" py={8} color="gray.500">
                         Nenhuma conta encontrada. Selecione uma empresa e período para buscar.

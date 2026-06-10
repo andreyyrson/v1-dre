@@ -1,4 +1,3 @@
-import csv
 import io
 from datetime import date
 from enum import Enum
@@ -6,6 +5,8 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
 
 from app.dependencies import get_contas_service
 from app.exceptions import PeriodoInvalidoError
@@ -105,7 +106,7 @@ async def exportar_contas_pagar(
     service: ContasService = Depends(get_contas_service),
     _: User = Depends(get_current_user),
 ) -> StreamingResponse:
-    """Exporta as contas em CSV. Sem `ids`: toda a busca; com `ids`: só as selecionadas."""
+    """Exporta as contas em Excel (XLSX). Sem `ids`: toda a busca; com `ids`: só as selecionadas."""
     todas = await _buscar_contas(service, id_empresa, data_inicial, data_final)
     contas = [c for c in todas if not c.pago] if apenas_abertas else todas
 
@@ -115,40 +116,53 @@ async def exportar_contas_pagar(
 
     contas = service.ordenar(contas, sort_by=sort_by.value, order=order.value)
 
-    buffer = io.StringIO()
-    writer = csv.writer(buffer, delimiter=";")
-    writer.writerow(
-        [
-            "id",
-            "descricao",
-            "fornecedor",
-            "categoria",
-            "valor",
-            "data_vencimento",
-            "data_quitacao",
-            "pago",
-            "empresa",
-        ]
-    )
-    for c in contas:
-        writer.writerow(
-            [
-                c.id,
-                c.descricao or "",
-                c.fornecedor or "",
-                c.categoria or "",
-                f"{c.valor:.2f}",
-                c.data_vencimento.isoformat() if c.data_vencimento else "",
-                c.data_quitacao.isoformat() if c.data_quitacao else "",
-                "sim" if c.pago else "nao",
-                c.nome_empresa or "",
-            ]
-        )
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Contas a Pagar"
+
+    # Headers
+    headers = ["ID", "Descrição", "Fornecedor", "Categoria", "Valor", "Vencimento", "Quitação", "Status", "Empresa"]
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    # Data
+    for row_num, c in enumerate(contas, 2):
+        ws.cell(row=row_num, column=1, value=c.id)
+        ws.cell(row=row_num, column=2, value=c.descricao or "")
+        ws.cell(row=row_num, column=3, value=c.fornecedor or "")
+        ws.cell(row=row_num, column=4, value=c.categoria or "")
+        ws.cell(row=row_num, column=5, value=c.valor)
+        ws.cell(row=row_num, column=6, value=c.data_vencimento.isoformat() if c.data_vencimento else "")
+        ws.cell(row=row_num, column=7, value=c.data_quitacao.isoformat() if c.data_quitacao else "")
+        ws.cell(row=row_num, column=8, value="Pago" if c.pago else "Em aberto")
+        ws.cell(row=row_num, column=9, value=c.nome_empresa or "")
+
+    # Auto-width columns
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
     buffer.seek(0)
 
-    filename = f"contas_pagar_{id_empresa}_{data_inicial}_{data_final}.csv"
+    filename = f"contas_pagar_{id_empresa}_{data_inicial}_{data_final}.xlsx"
     return StreamingResponse(
-        iter([buffer.getvalue()]),
-        media_type="text/csv; charset=utf-8",
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
