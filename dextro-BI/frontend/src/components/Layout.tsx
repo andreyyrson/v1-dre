@@ -1,27 +1,28 @@
 import { ReactNode } from 'react';
-import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Flex, Heading, Button, Box } from '@chakra-ui/react';
 
 export default function Layout({ children }: { children: ReactNode }) {
-  function handleLogout() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
+    navigate('/login');
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-900">Dashboard Laura</h1>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <LogOut size={18} />
-            Sair
-          </button>
-        </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
-    </div>
+    <Box minH="100vh" bg="gray.50">
+      <Flex as="header" bg="white" shadow="md" px={6} py={4} justify="space-between" align="center">
+        <Heading as="h1" size="lg" color="gray.900">
+          Dashboard Laura
+        </Heading>
+        <Button colorScheme="red" onClick={handleLogout}>
+          Sair
+        </Button>
+      </Flex>
+      <Box as="main" maxW="7xl" mx="auto" px={4} py={6}>
+        {children}
+      </Box>
+    </Box>
   );
 }

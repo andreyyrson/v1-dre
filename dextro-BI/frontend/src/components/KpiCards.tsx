@@ -1,3 +1,5 @@
+import { Card, CardBody, Text, Grid } from '@chakra-ui/react';
+
 interface KpiData {
   totalPago: number;
   vencidas: number;
@@ -6,22 +8,28 @@ interface KpiData {
 
 export default function KpiCards({ data }: { data: KpiData }) {
   const cards = [
-    { label: 'Total Pago', value: data.totalPago, color: 'bg-green-100 text-green-800' },
-    { label: 'Vencidas', value: data.vencidas, color: 'bg-red-100 text-red-800' },
-    { label: 'Agendadas', value: data.agendadas, color: 'bg-blue-100 text-blue-800' },
+    { label: 'Total Pago', value: data.totalPago, color: 'green' },
+    { label: 'Vencidas', value: data.vencidas, color: 'red' },
+    { label: 'Agendadas', value: data.agendadas, color: 'blue' },
   ];
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mb={6}>
       {cards.map((card) => (
-        <div key={card.label} className={`p-4 rounded-lg ${card.color}`}>
-          <p className="text-sm font-medium opacity-80">{card.label}</p>
-          <p className="text-2xl font-bold">{formatCurrency(card.value)}</p>
-        </div>
+        <Card key={card.label} bg={`${card.color}.100`} color={`${card.color}.800`}>
+          <CardBody>
+            <Text fontSize="sm" fontWeight="medium" opacity={0.8}>
+              {card.label}
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {formatCurrency(card.value)}
+            </Text>
+          </CardBody>
+        </Card>
       ))}
-    </div>
+    </Grid>
   );
 }

@@ -1,5 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Card,
+  CardBody,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Heading,
+  Text,
+  useToast,
+} from '@chakra-ui/react';
 import { login } from '../lib/api';
 
 export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
@@ -8,6 +20,7 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -18,48 +31,69 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
       localStorage.setItem('token', data.access_token);
       onLogin?.();
       navigate('/dashboard');
+      toast({
+        title: 'Login realizado com sucesso',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erro ao fazer login');
+      toast({
+        title: 'Erro ao fazer login',
+        description: err.response?.data?.detail || 'Credenciais inválidas',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Dashboard Laura</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Usuário</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Senha</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-              required
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" bg="gray.100">
+      <Card w="full" maxW="md" mx={4}>
+        <CardBody>
+          <Heading as="h1" size="xl" textAlign="center" mb={6}>
+            Dashboard Laura
+          </Heading>
+          <form onSubmit={handleSubmit}>
+            <FormControl mb={4} isRequired>
+              <FormLabel>Usuário</FormLabel>
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="admin@dextro"
+              />
+            </FormControl>
+            <FormControl mb={4} isRequired>
+              <FormLabel>Senha</FormLabel>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </FormControl>
+            {error && (
+              <Text color="red.500" fontSize="sm" mb={4}>
+                {error}
+              </Text>
+            )}
+            <Button
+              type="submit"
+              colorScheme="blue"
+              width="full"
+              isLoading={loading}
+              loadingText="Entrando..."
+            >
+              Entrar
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
+    </Box>
   );
 }

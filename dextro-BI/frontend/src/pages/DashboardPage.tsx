@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
+import {
+  Box,
+  Card,
+  CardBody,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Select,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  Grid,
+  useToast,
+  Spinner,
+} from '@chakra-ui/react';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
 import { fetchEmpresas, fetchContasPagar, refreshContas } from '../lib/api';
@@ -21,6 +40,7 @@ interface Conta {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [empresaId, setEmpresaId] = useState('');
   const [dataInicial, setDataInicial] = useState('');
@@ -53,7 +73,16 @@ export default function DashboardPage() {
   }
 
   async function handleBuscar() {
-    if (!empresaId || !dataInicial || !dataFinal) return;
+    if (!empresaId || !dataInicial || !dataFinal) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Selecione empresa e período',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
     setLoading(true);
     try {
       const response = await fetchContasPagar({
@@ -67,8 +96,22 @@ export default function DashboardPage() {
       const itens = response.Itens || [];
       setContas(itens);
       calcularKpis(itens);
+      toast({
+        title: 'Busca realizada',
+        description: `${itens.length} contas encontradas`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (err) {
       console.error(err);
+      toast({
+        title: 'Erro ao buscar',
+        description: 'Tente novamente',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -84,8 +127,20 @@ export default function DashboardPage() {
         data_final: dataFinal,
       });
       await handleBuscar();
+      toast({
+        title: 'Dados atualizados',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (err) {
       console.error(err);
+      toast({
+        title: 'Erro ao atualizar',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setRefreshing(false);
     }
@@ -96,106 +151,117 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-4 items-end">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">Empresa</label>
-            <select
-              value={empresaId}
-              onChange={(e) => setEmpresaId(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Selecione...</option>
-              {empresas.map((e) => (
-                <option key={e.Id} value={e.Id}>
-                  {e.Nome} ({e.Documento})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data Inicial</label>
-            <input
-              type="date"
-              value={dataInicial}
-              onChange={(e) => setDataInicial(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data Final</label>
-            <input
-              type="date"
-              value={dataFinal}
-              onChange={(e) => setDataFinal(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <button
-            onClick={handleBuscar}
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Buscando...' : 'Buscar'}
-          </button>
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing || !empresaId}
-            className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50"
-          >
-            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
-            {refreshing ? 'Atualizando...' : 'Atualizar'}
-          </button>
-        </div>
+      <Box p={6}>
+        <Card mb={6}>
+          <CardBody>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} alignItems="end">
+              <FormControl isRequired>
+                <FormLabel>Empresa</FormLabel>
+                <Select
+                  value={empresaId}
+                  onChange={(e) => setEmpresaId(e.target.value)}
+                  placeholder="Selecione..."
+                >
+                  {empresas.map((e) => (
+                    <option key={e.Id} value={e.Id}>
+                      {e.Nome} ({e.Documento})
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Data Inicial</FormLabel>
+                <Input
+                  type="date"
+                  value={dataInicial}
+                  onChange={(e) => setDataInicial(e.target.value)}
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Data Final</FormLabel>
+                <Input
+                  type="date"
+                  value={dataFinal}
+                  onChange={(e) => setDataFinal(e.target.value)}
+                />
+              </FormControl>
+            </Grid>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} mt={4}>
+              <Button
+                colorScheme="blue"
+                onClick={handleBuscar}
+                isLoading={loading}
+                loadingText="Buscando..."
+              >
+                Buscar
+              </Button>
+              <Button
+                colorScheme="gray"
+                onClick={handleRefresh}
+                isDisabled={!empresaId}
+                isLoading={refreshing}
+                loadingText="Atualizando..."
+              >
+                Atualizar
+              </Button>
+            </Grid>
+          </CardBody>
+        </Card>
 
         <KpiCards data={kpis} />
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vencimento</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Valor</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {contas.map((conta) => {
-                const isPago = !!conta.DataQuitacao;
-                const isVencida = !isPago && new Date(conta.DataVencimento) < new Date();
-                return (
-                  <tr key={conta.IdMovimentacaoFinanceiraParcela}>
-                    <td className="px-6 py-4 text-sm text-gray-900">{conta.Nome}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(conta.DataVencimento).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      {isPago ? (
-                        <span className="text-green-600 font-medium">Pago</span>
-                      ) : isVencida ? (
-                        <span className="text-red-600 font-medium">Vencida</span>
-                      ) : (
-                        <span className="text-blue-600 font-medium">Em aberto</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right">
-                      {formatCurrency(conta.Valor)}
-                    </td>
-                  </tr>
-                );
-              })}
-              {contas.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                    Nenhuma conta encontrada. Selecione uma empresa e período para buscar.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <Card>
+          <CardBody>
+            {loading ? (
+              <Box display="flex" justifyContent="center" py={8}>
+                <Spinner size="xl" />
+              </Box>
+            ) : (
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>Nome</Th>
+                    <Th>Vencimento</Th>
+                    <Th>Status</Th>
+                    <Th isNumeric>Valor</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {contas.map((conta) => {
+                    const isPago = !!conta.DataQuitacao;
+                    const isVencida = !isPago && new Date(conta.DataVencimento) < new Date();
+                    return (
+                      <Tr key={conta.IdMovimentacaoFinanceiraParcela}>
+                        <Td>{conta.Nome}</Td>
+                        <Td>
+                          {new Date(conta.DataVencimento).toLocaleDateString('pt-BR')}
+                        </Td>
+                        <Td>
+                          {isPago ? (
+                            <Badge colorScheme="green">Pago</Badge>
+                          ) : isVencida ? (
+                            <Badge colorScheme="red">Vencida</Badge>
+                          ) : (
+                            <Badge colorScheme="blue">Em aberto</Badge>
+                          )}
+                        </Td>
+                        <Td isNumeric>{formatCurrency(conta.Valor)}</Td>
+                      </Tr>
+                    );
+                  })}
+                  {contas.length === 0 && (
+                    <Tr>
+                      <Td colSpan={4} textAlign="center" py={8} color="gray.500">
+                        Nenhuma conta encontrada. Selecione uma empresa e período para buscar.
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </Table>
+            )}
+          </CardBody>
+        </Card>
+      </Box>
     </Layout>
   );
 }
