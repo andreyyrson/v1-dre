@@ -31,11 +31,11 @@ interface Empresa {
 }
 
 interface Conta {
-  IdMovimentacaoFinanceiraParcela: string;
-  Nome: string;
-  DataVencimento: string;
-  DataQuitacao: string | null;
-  Valor: number;
+  id: string;
+  descricao: string | null;
+  data_vencimento: string | null;
+  data_quitacao: string | null;
+  valor: number;
 }
 
 export default function DashboardPage() {
@@ -75,14 +75,14 @@ export default function DashboardPage() {
   function calcularKpis(contas: Conta[]) {
     const hoje = new Date();
     const totalPago = contas
-      .filter((c) => c.DataQuitacao)
-      .reduce((sum, c) => sum + c.Valor, 0);
+      .filter((c) => c.data_quitacao)
+      .reduce((sum, c) => sum + c.valor, 0);
     const vencidas = contas
-      .filter((c) => !c.DataQuitacao && new Date(c.DataVencimento) < hoje)
-      .reduce((sum, c) => sum + c.Valor, 0);
+      .filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) < hoje)
+      .reduce((sum, c) => sum + c.valor, 0);
     const agendadas = contas
-      .filter((c) => !c.DataQuitacao && new Date(c.DataVencimento) >= hoje)
-      .reduce((sum, c) => sum + c.Valor, 0);
+      .filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) >= hoje)
+      .reduce((sum, c) => sum + c.valor, 0);
     setKpis({ totalPago, vencidas, agendadas });
   }
 
@@ -107,7 +107,7 @@ export default function DashboardPage() {
         sort_by: 'data_vencimento',
         order: 'asc',
       });
-      const itens = response.Itens || [];
+      const itens = response.contas || [];
       setContas(itens);
       calcularKpis(itens);
       toast({
@@ -242,13 +242,13 @@ export default function DashboardPage() {
                 </Thead>
                 <Tbody>
                   {contas.map((conta) => {
-                    const isPago = !!conta.DataQuitacao;
-                    const isVencida = !isPago && new Date(conta.DataVencimento) < new Date();
+                    const isPago = !!conta.data_quitacao;
+                    const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
                     return (
-                      <Tr key={conta.IdMovimentacaoFinanceiraParcela}>
-                        <Td>{conta.Nome}</Td>
+                      <Tr key={conta.id}>
+                        <Td>{conta.descricao || 'Sem descrição'}</Td>
                         <Td>
-                          {new Date(conta.DataVencimento).toLocaleDateString('pt-BR')}
+                          {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
                         </Td>
                         <Td>
                           {isPago ? (
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                             <Badge colorScheme="blue">Em aberto</Badge>
                           )}
                         </Td>
-                        <Td isNumeric>{formatCurrency(conta.Valor)}</Td>
+                        <Td isNumeric>{formatCurrency(conta.valor)}</Td>
                       </Tr>
                     );
                   })}

@@ -117,44 +117,58 @@ export interface Empresa {
   Nome: string;
   Documento: string;
   Padrao: boolean;
-  TotalItens: number;
 }
 
 export interface ContaPagar {
-  IdMovimentacaoFinanceiraParcela: string;
-  Debito: boolean;
-  DataVencimento: string;
-  DataCompetencia: string;
-  DataQuitacao: string | null;
-  DataConciliacao: string | null;
-  Valor: number;
-  FormaPagamento: string | null;
-  NomeFormaPagamento: string | null;
-  TipoMovimentacao: number;
-  NomeTipoMovimentacao: string;
-  Nome: string;
-  Observacao: string | null;
-  NumeroParcela: number;
-  QuantidadeParcela: number;
-  IdCategoriaFinanceira: number | null;
-  NomeCategoriaFinanceira: string | null;
-  IdContaFinanceira: number | null;
-  NomeContaFinanceira: string | null;
-  IdEmpresa: number;
-  NomeEmpresa: string;
-  DocumentoEmpresa: string;
-  IdFornecedor: number | null;
-  IdFuncionario: number | null;
-  NomeClienteFornecedor: string | null;
-  DocumentoClienteFornecedor: string | null;
-  ValorAcrescimo: number;
-  ValorDesconto: number;
-  ValorBruto: number;
+  id: string;
+  descricao: string | null;
+  observacao: string | null;
+  valor: number;
+  valor_bruto: number | null;
+  valor_desconto: number | null;
+  valor_acrescimo: number | null;
+  debito: boolean;
+  data_vencimento: string | null;
+  data_competencia: string | null;
+  data_quitacao: string | null;
+  numero_parcela: number | null;
+  quantidade_parcela: number | null;
+  tipo_movimentacao: number | null;
+  nome_tipo_movimentacao: string | null;
+  id_categoria: number | null;
+  categoria: string | null;
+  id_conta_financeira: number | null;
+  conta_financeira: string | null;
+  id_empresa: number | null;
+  nome_empresa: string | null;
+  id_fornecedor: number | null;
+  id_funcionario: number | null;
+  fornecedor: string | null;
+  documento_fornecedor: string | null;
+}
+
+export interface ResumoContas {
+  total_contas: number;
+  valor_total: number;
+  valor_vencido: number;
+  valor_a_vencer: number;
+  valor_pago: number;
+  quantidade_vencidas: number;
+  quantidade_a_vencer: number;
+  quantidade_pagas: number;
+}
+
+export interface Paginacao {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
 }
 
 export interface ContasPagarResponse {
-  Itens: ContaPagar[];
-  TotalItens: number;
+  contas: ContaPagar[];
+  resumo: ResumoContas;
+  paginacao: Paginacao;
 }
 
 export interface ContasPagarParams {
