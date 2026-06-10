@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../lib/api';
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -14,7 +16,8 @@ export default function LoginPage() {
     try {
       const data = await login(username, password);
       localStorage.setItem('token', data.access_token);
-      window.location.href = '/dashboard';
+      onLogin?.();
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erro ao fazer login');
     } finally {
