@@ -32,7 +32,7 @@ import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
 import { SkeletonTable } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
-import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../lib/api';
+import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../services/api';
 
 interface Empresa {
   Id: number;

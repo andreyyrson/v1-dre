@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiLock } from 'react-icons/fi';
-import { login } from '../lib/api';
+import { login } from '../services/api';
 
 const MotionBox = motion(Box);
 const MotionCard = motion(Card);
