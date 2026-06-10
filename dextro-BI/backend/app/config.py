@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./app.db"
 
     # Admin inicial (seed) criado no primeiro startup se não houver usuários
-    ADMIN_USERNAME: str = "admin@dextro"
-    ADMIN_PASSWORD: str = "admin123"
+    ADMIN_USERNAME: str = "laura@dextro.com.br"
+    ADMIN_PASSWORD: str = "@aB30870251"
 
     model_config = SettingsConfigDict(
         env_file=".env",

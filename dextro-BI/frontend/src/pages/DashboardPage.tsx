@@ -211,15 +211,28 @@ export default function DashboardPage() {
         duration: 3000,
         isClosable: true,
       });
-    } catch (err) {
-      console.error(err);
-      toast({
-        title: 'Erro ao buscar',
-        description: 'Tente novamente',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+    } catch (err: any) {
+      console.error('Erro ao buscar contas:', err);
+      console.error('Response:', err.response);
+      console.error('Response data:', err.response?.data);
+      
+      if (err.response?.status === 422) {
+        toast({
+          title: 'Período inválido',
+          description: 'A data inicial deve ser anterior à data final',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Erro ao buscar',
+          description: err.response?.data?.detail || err.message || 'Tente novamente',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } finally {
       setLoading(false);
     }
