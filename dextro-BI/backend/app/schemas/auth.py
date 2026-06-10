@@ -1,7 +1,7 @@
 import re
 from pydantic import BaseModel, Field, field_validator
 
-_EMAIL_RE = re.compile(r"^[^@\s]+@dextro$")
+_EMAIL_RE = re.compile(r"^[^@\s]+@dextro(\.com\.br)?$")
 
 
 class LoginRequest(BaseModel):
