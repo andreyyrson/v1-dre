@@ -1,5 +1,4 @@
 #!/bin/bash
-pip install setuptools
 cd backend
-pip install -e .
+export PYTHONPATH=/opt/render/project/src/backend:$PYTHONPATH
 python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
