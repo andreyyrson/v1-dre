@@ -4,13 +4,22 @@ const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export const api = axios.create({ baseURL });
 
+// Adiciona token em todas as requisições
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       delete api.defaults.headers.common["Authorization"];
-      window.location.href = "/";
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   },
@@ -58,12 +67,8 @@ export async function fetchEmpresas(): Promise<Empresa[]> {
   return data;
 }
 
-export async function fetchContasPagar(
-  params: ContasPagarParams,
-): Promise<ContasPagarResponse> {
-  const { data } = await api.get<ContasPagarResponse>("/contas-pagar", {
-    params,
-  });
+export async function fetchContasPagar(params: ContasPagarParams): Promise<ContasPagarResponse> {
+  const { data } = await api.get<ContasPagarResponse>("/contas-pagar", { params });
   return data;
 }
 
@@ -77,7 +82,6 @@ export interface ExportParams {
   ids?: string[];
 }
 
-/** Dispara o download do CSV (toda a busca ou apenas as selecionadas). */
 export async function downloadCsv(params: ExportParams): Promise<void> {
   const query: Record<string, string> = {
     id_empresa: String(params.id_empresa),
