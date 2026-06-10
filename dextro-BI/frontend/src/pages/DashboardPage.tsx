@@ -55,8 +55,22 @@ export default function DashboardPage() {
       navigate('/login');
       return;
     }
-    fetchEmpresas().then(setEmpresas).catch(console.error);
-  }, [navigate]);
+    fetchEmpresas()
+      .then((data) => {
+        console.log('Empresas recebidas:', data);
+        setEmpresas(data);
+      })
+      .catch((err) => {
+        console.error('Erro ao buscar empresas:', err);
+        toast({
+          title: 'Erro ao carregar empresas',
+          description: 'Tente novamente',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      });
+  }, [navigate, toast]);
 
   function calcularKpis(contas: Conta[]) {
     const hoje = new Date();
