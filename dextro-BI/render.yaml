@@ -18,7 +18,7 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: CORS_ORIGINS
-        sync: false
+        value: "*"
       - key: CACHE_TTL_CONTAS
         value: "300"
       - key: CACHE_TTL_EMPRESAS
