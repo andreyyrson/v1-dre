@@ -11,8 +11,16 @@ import {
   Heading,
   Text,
   useToast,
+  Icon,
+  VStack,
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiLock } from 'react-icons/fi';
 import { login } from '../lib/api';
+
+const MotionBox = motion(Box);
+const MotionCard = motion(Card);
+const MotionButton = motion(Button);
 
 export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const [username, setUsername] = useState('');
@@ -52,48 +60,89 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   }
 
   return (
-    <Box minH="100vh" display="flex" alignItems="center" justifyContent="center" bg="gray.100">
-      <Card w="full" maxW="md" mx={4}>
-        <CardBody>
-          <Heading as="h1" size="xl" textAlign="center" mb={6}>
-            Dashboard Laura
+    <Box
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg="linear-gradient(135deg, #FAF5FF 0%, #BEE3F8 100%)"
+      p={4}
+    >
+      <MotionCard
+        w="full"
+        maxW="400px"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        borderRadius="2xl"
+        boxShadow="2xl"
+        bg="white"
+      >
+        <CardBody p={8}>
+          <MotionBox
+            animate={{ 
+              y: [0, -10, 0],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity 
+            }}
+            textAlign="center"
+            mb={6}
+          >
+            <Icon as={FiLock} boxSize={16} color="primary.600" />
+          </MotionBox>
+          <Heading size="lg" textAlign="center" mb={2} color="gray.800">
+            Bem-vindo
           </Heading>
-          <form onSubmit={handleSubmit}>
-            <FormControl mb={4} isRequired>
+          <Text color="gray.500" textAlign="center" mb={6}>
+            Entre com suas credenciais para acessar o dashboard
+          </Text>
+          <VStack spacing={4} as="form" onSubmit={handleSubmit}>
+            <FormControl isRequired>
               <FormLabel>Usuário</FormLabel>
               <Input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin@dextro"
+                size="lg"
+                borderRadius="md"
               />
             </FormControl>
-            <FormControl mb={4} isRequired>
+            <FormControl isRequired>
               <FormLabel>Senha</FormLabel>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                size="lg"
+                borderRadius="md"
               />
             </FormControl>
             {error && (
-              <Text color="red.500" fontSize="sm" mb={4}>
+              <Text color="error.500" fontSize="sm" textAlign="center">
                 {error}
               </Text>
             )}
-            <Button
+            <MotionButton
               type="submit"
-              colorScheme="blue"
-              width="full"
+              colorScheme="primary"
+              size="lg"
+              w="full"
+              borderRadius="md"
               isLoading={loading}
               loadingText="Entrando..."
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
               Entrar
-            </Button>
-          </form>
+            </MotionButton>
+          </VStack>
         </CardBody>
-      </Card>
+      </MotionCard>
     </Box>
   );
 }

@@ -18,12 +18,20 @@ import {
   Badge,
   Grid,
   useToast,
-  Spinner,
   Checkbox,
   Heading,
+  Hide,
+  VStack,
+  Flex,
+  Text as ChakraText,
+  Icon,
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiFilter } from 'react-icons/fi';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
+import { SkeletonTable } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
 import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../lib/api';
 
 interface Empresa {
@@ -343,30 +351,39 @@ export default function DashboardPage() {
               </FormControl>
             </Grid>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
-              <Button
-                colorScheme="blue"
-                onClick={handleBuscar}
-                isLoading={loading}
-                loadingText="Buscando..."
-              >
-                Buscar
-              </Button>
-              <Button
-                colorScheme="gray"
-                onClick={handleRefresh}
-                isDisabled={!empresaId}
-                isLoading={refreshing}
-                loadingText="Atualizando..."
-              >
-                Atualizar
-              </Button>
-              <Button
-                colorScheme="green"
-                onClick={handleExport}
-                isDisabled={contas.length === 0}
-              >
-                Exportar Excel
-              </Button>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  colorScheme="primary"
+                  onClick={handleBuscar}
+                  isLoading={loading}
+                  loadingText="Buscando..."
+                  w="full"
+                >
+                  Buscar
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  colorScheme="gray"
+                  onClick={handleRefresh}
+                  isDisabled={!empresaId}
+                  isLoading={refreshing}
+                  loadingText="Atualizando..."
+                  w="full"
+                >
+                  Atualizar
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  colorScheme="success"
+                  onClick={handleExport}
+                  isDisabled={contas.length === 0}
+                  w="full"
+                >
+                  Exportar Excel
+                </Button>
+              </motion.div>
             </Grid>
             <Box mt={4}>
               <Checkbox
@@ -379,147 +396,223 @@ export default function DashboardPage() {
           </CardBody>
         </Card>
 
-        <Card mb={6}>
-          <CardBody>
-            <Heading as="h3" size="md" mb={4}>
-              Filtros Adicionais
-            </Heading>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-              <FormControl>
-                <FormLabel>Categoria</FormLabel>
-                <Select
-                  value={categoriaId}
-                  onChange={(e) => setCategoriaId(e.target.value)}
-                  placeholder="Todas"
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card mb={6}>
+            <CardBody>
+              <Heading as="h3" size="md" mb={4} display="flex" alignItems="center">
+                <motion.div
+                  animate={{ rotate: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {getUniqueCategorias().map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nome}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Fornecedor</FormLabel>
-                <Select
-                  value={fornecedorId}
-                  onChange={(e) => setFornecedorId(e.target.value)}
-                  placeholder="Todos"
+                  <Icon as={FiFilter} mr={2} color="primary.500" />
+                </motion.div>
+                Filtros Adicionais
+              </Heading>
+              <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                <FormControl>
+                  <FormLabel>Categoria</FormLabel>
+                  <Select
+                    value={categoriaId}
+                    onChange={(e) => setCategoriaId(e.target.value)}
+                    placeholder="Todas"
+                  >
+                    {getUniqueCategorias().map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.nome}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Fornecedor</FormLabel>
+                  <Select
+                    value={fornecedorId}
+                    onChange={(e) => setFornecedorId(e.target.value)}
+                    placeholder="Todos"
+                  >
+                    {getUniqueFornecedores().map((forn) => (
+                      <option key={forn.id} value={forn.id}>
+                        {forn.nome}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Valor Mínimo</FormLabel>
+                  <Input
+                    type="number"
+                    value={valorMin}
+                    onChange={(e) => setValorMin(e.target.value)}
+                    placeholder="R$ 0,00"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Valor Máximo</FormLabel>
+                  <Input
+                    type="number"
+                    value={valorMax}
+                    onChange={(e) => setValorMax(e.target.value)}
+                    placeholder="R$ 0,00"
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Conta Financeira</FormLabel>
+                  <Select
+                    value={contaFinanceiraId}
+                    onChange={(e) => setContaFinanceiraId(e.target.value)}
+                    placeholder="Todas"
+                  >
+                    {getUniqueContasFinanceiras().map((conta) => (
+                      <option key={conta.id} value={conta.id}>
+                        {conta.nome}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  mt={4}
+                  colorScheme="gray"
+                  onClick={handleLimparFiltros}
+                  isDisabled={contas.length === 0}
                 >
-                  {getUniqueFornecedores().map((forn) => (
-                    <option key={forn.id} value={forn.id}>
-                      {forn.nome}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel>Valor Mínimo</FormLabel>
-                <Input
-                  type="number"
-                  value={valorMin}
-                  onChange={(e) => setValorMin(e.target.value)}
-                  placeholder="R$ 0,00"
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Valor Máximo</FormLabel>
-                <Input
-                  type="number"
-                  value={valorMax}
-                  onChange={(e) => setValorMax(e.target.value)}
-                  placeholder="R$ 0,00"
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Conta Financeira</FormLabel>
-                <Select
-                  value={contaFinanceiraId}
-                  onChange={(e) => setContaFinanceiraId(e.target.value)}
-                  placeholder="Todas"
-                >
-                  {getUniqueContasFinanceiras().map((conta) => (
-                    <option key={conta.id} value={conta.id}>
-                      {conta.nome}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Button
-              mt={4}
-              colorScheme="gray"
-              onClick={handleLimparFiltros}
-              isDisabled={contas.length === 0}
-            >
-              Limpar Filtros
-            </Button>
-          </CardBody>
-        </Card>
+                  Limpar Filtros
+                </Button>
+              </motion.div>
+            </CardBody>
+          </Card>
+        </motion.div>
 
         <KpiCards data={kpis} />
 
         <Card>
           <CardBody>
             {loading ? (
-              <Box display="flex" justifyContent="center" py={8}>
-                <Spinner size="xl" />
-              </Box>
+              <SkeletonTable count={5} />
+            ) : filteredContas.length === 0 ? (
+              <EmptyState
+                icon="search"
+                title="Nenhuma conta encontrada"
+                description="Selecione uma empresa e período para buscar contas"
+                actionLabel="Buscar Contas"
+                onAction={handleBuscar}
+              />
             ) : (
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th width="40px">
-                      <Checkbox
-                        isChecked={selectedIds.size === filteredContas.length && filteredContas.length > 0}
-                        isIndeterminate={selectedIds.size > 0 && selectedIds.size < filteredContas.length}
-                        onChange={handleSelectAll}
-                      />
-                    </Th>
-                    <Th>Nome</Th>
-                    <Th>Vencimento</Th>
-                    <Th>Status</Th>
-                    <Th isNumeric>Valor</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {filteredContas.map((conta) => {
-                    const isPago = !!conta.data_quitacao;
-                    const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
-                    return (
-                      <Tr key={conta.id}>
-                        <Td>
-                          <Checkbox
-                            isChecked={selectedIds.has(conta.id)}
-                            onChange={() => handleSelectOne(conta.id)}
-                          />
-                        </Td>
-                        <Td>{conta.descricao || 'Sem descrição'}</Td>
-                        <Td>
-                          {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
-                        </Td>
-                        <Td>
-                          {isPago ? (
-                            <Badge colorScheme="green">Pago</Badge>
-                          ) : isVencida ? (
-                            <Badge colorScheme="red">Vencida</Badge>
-                          ) : (
-                            <Badge colorScheme="blue">Em aberto</Badge>
-                          )}
-                        </Td>
-                        <Td isNumeric>{formatCurrency(conta.valor)}</Td>
+              <>
+                <Hide below="md">
+                  <Table variant="simple">
+                    <Thead bg="gray.50">
+                      <Tr>
+                        <Th width="40px">
+                          <motion.div whileTap={{ scale: 0.9 }}>
+                            <Checkbox
+                              isChecked={selectedIds.size === filteredContas.length && filteredContas.length > 0}
+                              isIndeterminate={selectedIds.size > 0 && selectedIds.size < filteredContas.length}
+                              onChange={handleSelectAll}
+                            />
+                          </motion.div>
+                        </Th>
+                        <Th>Descrição</Th>
+                        <Th>Vencimento</Th>
+                        <Th>Status</Th>
+                        <Th isNumeric>Valor</Th>
                       </Tr>
-                    );
-                  })}
-                  {filteredContas.length === 0 && (
-                    <Tr>
-                      <Td colSpan={5} textAlign="center" py={8} color="gray.500">
-                        Nenhuma conta encontrada. Selecione uma empresa e período para buscar.
-                      </Td>
-                    </Tr>
-                  )}
-                </Tbody>
-              </Table>
+                    </Thead>
+                    <Tbody>
+                      {filteredContas.map((conta, i) => {
+                        const isPago = !!conta.data_quitacao;
+                        const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                        return (
+                          <motion.tr
+                            key={conta.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            whileHover={{ 
+                              scale: 1.01 
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <Td>
+                              <motion.div whileTap={{ scale: 0.9 }}>
+                                <Checkbox
+                                  isChecked={selectedIds.has(conta.id)}
+                                  onChange={() => handleSelectOne(conta.id)}
+                                />
+                              </motion.div>
+                            </Td>
+                            <Td>{conta.descricao || 'Sem descrição'}</Td>
+                            <Td>
+                              {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
+                            </Td>
+                            <Td>
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring' }}
+                              >
+                                <Badge colorScheme={isPago ? 'success' : isVencida ? 'error' : 'info'}>
+                                  {isPago ? 'Pago' : isVencida ? 'Vencida' : 'Em aberto'}
+                                </Badge>
+                              </motion.div>
+                            </Td>
+                            <Td isNumeric fontFamily="mono">{formatCurrency(conta.valor)}</Td>
+                          </motion.tr>
+                        );
+                      })}
+                    </Tbody>
+                  </Table>
+                </Hide>
+                <Hide above="md">
+                  <VStack spacing={4}>
+                    {filteredContas.map((conta) => {
+                      const isPago = !!conta.data_quitacao;
+                      const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                      return (
+                        <motion.div
+                          key={conta.id}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          style={{ width: '100%' }}
+                        >
+                          <Card p={4} boxShadow="md">
+                            <Flex justify="space-between" align="center" mb={2}>
+                              <ChakraText fontWeight="bold">{conta.descricao || 'Sem descrição'}</ChakraText>
+                              <motion.div whileTap={{ scale: 0.9 }}>
+                                <Checkbox
+                                  isChecked={selectedIds.has(conta.id)}
+                                  onChange={() => handleSelectOne(conta.id)}
+                                />
+                              </motion.div>
+                            </Flex>
+                            <ChakraText color="gray.500" fontSize="sm">
+                              Vencimento: {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
+                            </ChakraText>
+                            <Flex justify="space-between" align="center" mt={2}>
+                              <Badge colorScheme={isPago ? 'success' : isVencida ? 'error' : 'info'}>
+                                {isPago ? 'Pago' : isVencida ? 'Vencida' : 'Em aberto'}
+                              </Badge>
+                              <ChakraText 
+                                fontSize="lg" 
+                                fontWeight="bold" 
+                                color="primary.600"
+                                fontFamily="mono"
+                              >
+                                {formatCurrency(conta.valor)}
+                              </ChakraText>
+                            </Flex>
+                          </Card>
+                        </motion.div>
+                      );
+                    })}
+                  </VStack>
+                </Hide>
+              </>
             )}
           </CardBody>
         </Card>
