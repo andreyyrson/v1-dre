@@ -4,9 +4,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class Empresa(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, by_alias=False)
 
-    id: int = Field(alias="Id")
-    nome: Optional[str] = Field(default=None, alias="Nome")
-    documento: Optional[str] = Field(default=None, alias="Documento")
-    padrao: bool = Field(default=False, alias="Padrao")
+    Id: int
+    Nome: Optional[str] = None
+    Documento: Optional[str] = None
+    Padrao: bool = False
