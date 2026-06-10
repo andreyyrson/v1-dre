@@ -14,7 +14,7 @@ services:
       - key: JWT_EXPIRE_MINUTES
         value: "480"
       - key: ADMIN_USERNAME
-        value: admin@dextro
+        value: laura@dextro.com.br
       - key: ADMIN_PASSWORD
         sync: false
       - key: CORS_ORIGINS

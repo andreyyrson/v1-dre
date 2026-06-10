@@ -106,7 +106,7 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin@dextro"
+                placeholder="laura@dextro.com.br"
                 size="lg"
                 borderRadius="md"
               />
