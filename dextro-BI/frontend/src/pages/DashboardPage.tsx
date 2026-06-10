@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
@@ -19,6 +20,7 @@ interface Conta {
 }
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [empresaId, setEmpresaId] = useState('');
   const [dataInicial, setDataInicial] = useState('');
@@ -29,8 +31,12 @@ export default function DashboardPage() {
   const [kpis, setKpis] = useState({ totalPago: 0, vencidas: 0, agendadas: 0 });
 
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      navigate('/login');
+      return;
+    }
     fetchEmpresas().then(setEmpresas).catch(console.error);
-  }, []);
+  }, [navigate]);
 
   function calcularKpis(contas: Conta[]) {
     const hoje = new Date();
