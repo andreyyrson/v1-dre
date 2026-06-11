@@ -416,7 +416,10 @@ export default function DashboardPage() {
                 />
               </FormControl>
               <Button
-                variant="primary"
+                bg="#FFFFFF"
+                color="#0A0A0A"
+                _hover={{ bg: '#E4E4E7' }}
+                _active={{ bg: '#D4D4D8' }}
                 onClick={handleBuscar}
                 isLoading={loading}
                 loadingText="Buscando..."
@@ -434,7 +437,10 @@ export default function DashboardPage() {
               </Checkbox>
               <Flex gap={3}>
                 <Button
-                  variant="secondary"
+                  bg="transparent"
+                  color="#FFFFFF"
+                  border="1px solid #27272A"
+                  _hover={{ bg: '#1A1A1A' }}
                   onClick={handleRefresh}
                   isDisabled={!empresaId}
                   isLoading={refreshing}
@@ -444,7 +450,10 @@ export default function DashboardPage() {
                   Atualizar
                 </Button>
                 <Button
-                  variant="secondary"
+                  bg="transparent"
+                  color="#FFFFFF"
+                  border="1px solid #27272A"
+                  _hover={{ bg: '#1A1A1A' }}
                   onClick={handleExport}
                   isDisabled={contas.length === 0}
                   size="sm"
