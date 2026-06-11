@@ -201,10 +201,7 @@ export default function DashboardPage() {
         sort_by: 'data_vencimento',
         order: 'asc',
       });
-      console.log('API Response:', response);
       const itens = response.contas || [];
-      console.log('Itens length:', itens.length);
-      console.log('Setting contas to:', itens);
       setContas(itens);
       applyFilters(itens);
       toast({
@@ -367,9 +364,6 @@ export default function DashboardPage() {
                 />
               </FormControl>
             </Grid>
-            <ChakraText color="red.500" fontWeight="bold" mt={2}>
-              DEBUG: contas.length = {contas.length}
-            </ChakraText>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
