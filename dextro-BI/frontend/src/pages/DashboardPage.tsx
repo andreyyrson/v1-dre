@@ -256,6 +256,7 @@ export default function DashboardPage() {
     setSelectedIds(newSelected);
   }
 
+  // Force Vercel redeploy
   async function handleExport() {
     if (!empresaId || !dataInicial || !dataFinal) {
       toast({
