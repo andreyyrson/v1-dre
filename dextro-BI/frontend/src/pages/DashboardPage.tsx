@@ -425,8 +425,10 @@ export default function DashboardPage() {
               <Checkbox
                 isChecked={apenasAbertas}
                 onChange={(e) => setApenasAbertas(e.target.checked)}
+                colorScheme="whiteAlpha"
+                iconColor="#0A0A0A"
               >
-                Apenas em aberto
+                <ChakraText color="#FFFFFF" fontSize="sm">Apenas em aberto</ChakraText>
               </Checkbox>
               <Flex gap={3}>
                 <Button
