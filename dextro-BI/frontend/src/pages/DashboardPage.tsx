@@ -24,13 +24,10 @@ import {
   VStack,
   Flex,
   Text as ChakraText,
-  InputGroup,
-  InputRightElement,
-  Icon,
 } from '@chakra-ui/react';
-import { FiCalendar } from 'react-icons/fi';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
+import DatePicker from '../components/DatePicker';
 import { SkeletonTable } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../services/api';
@@ -405,40 +402,11 @@ export default function DashboardPage() {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Inicial</FormLabel>
-                <InputGroup>
-                  <Input
-                    type="date"
-                    value={dataInicial}
-                    onChange={(e) => setDataInicial(e.target.value)}
-                    color="#FFFFFF"
-                  />
-                  <InputRightElement
-                    children={<Icon as={FiCalendar} color="#A1A1AA" cursor="pointer" />}
-                    onClick={() => {
-                      const input = document.querySelector('input[type="date"]') as HTMLInputElement;
-                      input?.showPicker?.();
-                    }}
-                  />
-                </InputGroup>
+                <DatePicker value={dataInicial} onChange={setDataInicial} />
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Final</FormLabel>
-                <InputGroup>
-                  <Input
-                    type="date"
-                    value={dataFinal}
-                    onChange={(e) => setDataFinal(e.target.value)}
-                    color="#FFFFFF"
-                  />
-                  <InputRightElement
-                    children={<Icon as={FiCalendar} color="#A1A1AA" cursor="pointer" />}
-                    onClick={() => {
-                      const inputs = document.querySelectorAll('input[type="date"]');
-                      const input = inputs[1] as HTMLInputElement;
-                      input?.showPicker?.();
-                    }}
-                  />
-                </InputGroup>
+                <DatePicker value={dataFinal} onChange={setDataFinal} />
               </FormControl>
               <Button
                 bg="#FFFFFF"
