@@ -40,6 +40,28 @@ export async function fetchEmpresas() {
   return response.data;
 }
 
+export interface ResumoKpi {
+  total_contas: number;
+  valor_total: number;
+  valor_vencido: number;
+  valor_a_vencer: number;
+  quantidade_vencidas: number;
+  quantidade_a_vencer: number;
+}
+
+export interface Paginacao {
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+}
+
+export interface ContasPagarResponse {
+  contas: any[];
+  resumo: ResumoKpi;
+  paginacao: Paginacao;
+}
+
 export async function fetchContasPagar(params: {
   id_empresa: number;
   data_inicial: string;
@@ -47,9 +69,11 @@ export async function fetchContasPagar(params: {
   apenas_abertas: boolean;
   sort_by: string;
   order: string;
+  page?: number;
+  page_size?: number;
 }) {
   const response = await api.get('/contas-pagar', { params });
-  return response.data;
+  return response.data as ContasPagarResponse;
 }
 
 export async function refreshContas(params: {

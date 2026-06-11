@@ -28,6 +28,7 @@ import {
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
 import DatePicker from '../components/DatePicker';
+import Pagination from '../components/Pagination';
 import { SkeletonTable } from '../components/SkeletonLoader';
 import EmptyState from '../components/EmptyState';
 import { fetchEmpresas, fetchContasPagar, refreshContas, downloadExcel } from '../services/api';
@@ -73,6 +74,10 @@ export default function DashboardPage() {
   const [filteredContas, setFilteredContas] = useState<Conta[]>([]);
   const [sortColumn, setSortColumn] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   function handleSort(column: string) {
     let newDirection: 'asc' | 'desc' = 'asc';
@@ -81,49 +86,24 @@ export default function DashboardPage() {
     }
     setSortColumn(column);
     setSortDirection(newDirection);
-
-    const sorted = [...filteredContas].sort((a, b) => {
-      let valA: string | number;
-      let valB: string | number;
-
-      switch (column) {
-        case 'fornecedor':
-          valA = a.fornecedor || a.descricao || '';
-          valB = b.fornecedor || b.descricao || '';
-          break;
-        case 'vencimento':
-          valA = a.data_vencimento || '';
-          valB = b.data_vencimento || '';
-          break;
-        case 'valor':
-          valA = a.valor;
-          valB = b.valor;
-          break;
-        case 'status': {
-          const getStatus = (c: Conta) => {
-            if (c.data_quitacao) return 3; // Pago
-            if (c.data_vencimento && new Date(c.data_vencimento) < new Date()) return 2; // Vencido
-            return 1; // Aberto
-          };
-          valA = getStatus(a);
-          valB = getStatus(b);
-          break;
-        }
-        default:
-          return 0;
-      }
-
-      if (valA < valB) return newDirection === 'asc' ? -1 : 1;
-      if (valA > valB) return newDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    setFilteredContas(sorted);
+    setPage(1);
+    // API sort will be triggered by the page state change via useEffect
   }
 
   function getSortIcon(column: string) {
     if (sortColumn !== column) return '';
     return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  }
+
+  // Build API sort params from column key
+  function getApiSortBy(column: string): string {
+    switch (column) {
+      case 'fornecedor': return 'fornecedor';
+      case 'vencimento': return 'data_vencimento';
+      case 'valor': return 'valor';
+      case 'status': return 'data_vencimento'; // fallback
+      default: return 'data_vencimento';
+    }
   }
 
   useEffect(() => {
@@ -154,17 +134,10 @@ export default function DashboardPage() {
     }
   }, [categoriaId, fornecedorId, valorMin, valorMax, contaFinanceiraId]);
 
-  function calcularKpis(contas: Conta[]) {
-    const hoje = new Date();
-    const totalPago = contas
-      .filter((c) => c.data_quitacao)
-      .reduce((sum, c) => sum + c.valor, 0);
-    const vencidas = contas
-      .filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) < hoje)
-      .reduce((sum, c) => sum + c.valor, 0);
-    const agendadas = contas
-      .filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) >= hoje)
-      .reduce((sum, c) => sum + c.valor, 0);
+  function calcularKpisFromResumo(resumo: any) {
+    const totalPago = (resumo.valor_total || 0) - (resumo.valor_vencido || 0) - (resumo.valor_a_vencer || 0);
+    const vencidas = resumo.valor_vencido || 0;
+    const agendadas = resumo.valor_a_vencer || 0;
     setKpis({ totalPago, vencidas, agendadas });
   }
 
@@ -188,8 +161,7 @@ export default function DashboardPage() {
     }
 
     setFilteredContas(filtered);
-    setSortColumn('');
-    calcularKpis(filtered);
+    // KPIs are now calculated from API resumo, not client-side
   }
 
   function getUniqueCategorias() {
@@ -229,10 +201,9 @@ export default function DashboardPage() {
     setValorMax('');
     setContaFinanceiraId('');
     setFilteredContas(contas);
-    calcularKpis(contas);
   }
 
-  async function handleBuscar() {
+  async function handleBuscar(forcePage?: number) {
     if (!empresaId || !dataInicial || !dataFinal) {
       toast({
         title: 'Campos obrigatórios',
@@ -246,20 +217,27 @@ export default function DashboardPage() {
     setLoading(true);
     setSelectedIds(new Set());
     try {
+      const sortBy = sortColumn ? getApiSortBy(sortColumn) : 'data_vencimento';
+      const currentPage = forcePage ?? page;
       const response = await fetchContasPagar({
         id_empresa: Number(empresaId),
         data_inicial: dataInicial,
         data_final: dataFinal,
         apenas_abertas: apenasAbertas,
-        sort_by: 'data_vencimento',
-        order: 'asc',
+        sort_by: sortBy,
+        order: sortDirection,
+        page: currentPage,
+        page_size: pageSize,
       });
       const itens = response.contas || [];
       setContas(itens);
       applyFilters(itens);
+      setTotal(response.paginacao?.total || 0);
+      setTotalPages(response.paginacao?.total_pages || 1);
+      calcularKpisFromResumo(response.resumo);
       toast({
         title: 'Busca realizada',
-        description: `${itens.length} contas encontradas`,
+        description: `${response.paginacao?.total || 0} contas encontradas`,
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -268,7 +246,7 @@ export default function DashboardPage() {
       console.error('Erro ao buscar contas:', err);
       console.error('Response:', err.response);
       console.error('Response data:', err.response?.data);
-      
+
       if (err.response?.status === 422) {
         toast({
           title: 'Período inválido',
@@ -289,6 +267,17 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handlePageChange(newPage: number) {
+    setPage(newPage);
+    handleBuscar(newPage);
+  }
+
+  function handlePageSizeChange(newSize: number) {
+    setPageSize(newSize);
+    setPage(1);
+    handleBuscar(1);
   }
 
   function handleSelectAll(e: React.ChangeEvent<HTMLInputElement>) {
@@ -736,6 +725,14 @@ export default function DashboardPage() {
                     })}
                   </VStack>
                 </Hide>
+                <Pagination
+                  page={page}
+                  pageSize={pageSize}
+                  total={total}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
               </>
             )}
           </CardBody>
