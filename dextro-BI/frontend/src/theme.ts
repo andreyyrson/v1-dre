@@ -2,95 +2,117 @@ import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   fonts: {
-    heading: 'Poppins, sans-serif',
+    heading: 'Inter, sans-serif',
     body: 'Inter, sans-serif',
     mono: 'JetBrains Mono, monospace',
   },
   colors: {
-    primary: {
-      50: '#FAF5FF',
-      100: '#E9D8FD',
-      200: '#D6BCFA',
-      300: '#B794F4',
-      400: '#9F7AEA',
-      500: '#805AD5',
-      600: '#6B46C1',
-      700: '#553C9A',
-      800: '#44337A',
-      900: '#322659',
+    surface: {
+      bg: '#0A0A0A',
+      card: '#141414',
+      hover: '#1A1A1A',
+      input: '#0A0A0A',
     },
-    success: {
-      50: '#F0FFF4',
-      100: '#C6F6D5',
-      200: '#9AE6B4',
-      300: '#68D391',
-      400: '#48BB78',
-      500: '#38A169',
-      600: '#2F855A',
-      700: '#276749',
-      800: '#22543D',
-      900: '#1C4532',
+    border: {
+      default: '#27272A',
+      focus: '#FFFFFF',
     },
-    error: {
-      50: '#FFF5F5',
-      100: '#FED7D7',
-      200: '#FEB2B2',
-      300: '#FC8181',
-      400: '#F56565',
-      500: '#E53E3E',
-      600: '#C53030',
-      700: '#9B2C2C',
-      800: '#822727',
-      900: '#63171B',
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#A1A1AA',
+      muted: '#52525B',
     },
-    info: {
-      50: '#EBF8FF',
-      100: '#BEE3F8',
-      200: '#90CDF4',
-      300: '#63B3ED',
-      400: '#4299E1',
-      500: '#3182CE',
-      600: '#2B6CB0',
-      700: '#2C5282',
-      800: '#2A4365',
-      900: '#1A365D',
+    status: {
+      paid: '#22C55E',
+      overdue: '#EAB308',
+      open: '#A1A1AA',
     },
   },
   components: {
     Button: {
-      defaultProps: {
-        colorScheme: 'primary',
-      },
       baseStyle: {
         fontWeight: '600',
-        borderRadius: 'md',
-        transition: 'all 0.2s ease',
+        borderRadius: 'sm',
+        transition: 'all 0.15s ease',
+      },
+      variants: {
+        primary: {
+          bg: '#FFFFFF',
+          color: '#0A0A0A',
+          _hover: { bg: '#E4E4E7' },
+          _active: { bg: '#D4D4D8' },
+        },
+        secondary: {
+          bg: 'transparent',
+          color: '#FFFFFF',
+          border: '1px solid #27272A',
+          _hover: { bg: '#1A1A1A' },
+          _active: { bg: '#27272A' },
+        },
+        ghost: {
+          bg: 'transparent',
+          color: '#A1A1AA',
+          _hover: { color: '#FFFFFF', bg: 'transparent' },
+        },
+      },
+      defaultProps: {
+        variant: 'primary',
       },
     },
     Card: {
       baseStyle: {
-        borderRadius: 'xl',
-        boxShadow: 'md',
+        bg: '#141414',
+        borderRadius: 'sm',
+        border: '1px solid #27272A',
+        boxShadow: 'none',
       },
     },
     Input: {
-      defaultProps: {
-        focusBorderColor: 'primary.500',
-      },
       baseStyle: {
-        borderRadius: 'md',
+        bg: '#0A0A0A',
+        borderColor: '#27272A',
+        borderRadius: 'sm',
+        color: '#FFFFFF',
+        _placeholder: { color: '#52525B' },
+      },
+      defaultProps: {
+        focusBorderColor: '#FFFFFF',
       },
     },
     Select: {
+      baseStyle: {
+        bg: '#0A0A0A',
+        borderColor: '#27272A',
+        borderRadius: 'sm',
+        color: '#FFFFFF',
+      },
       defaultProps: {
-        focusBorderColor: 'primary.500',
+        focusBorderColor: '#FFFFFF',
+      },
+    },
+    Checkbox: {
+      baseStyle: {
+        control: {
+          bg: '#0A0A0A',
+          borderColor: '#27272A',
+          _checked: {
+            bg: '#FFFFFF',
+            borderColor: '#FFFFFF',
+            color: '#0A0A0A',
+          },
+        },
+        label: {
+          color: '#A1A1AA',
+          fontSize: 'sm',
+        },
       },
     },
   },
   styles: {
     global: {
       body: {
-        bg: 'gray.50',
+        bg: '#0A0A0A',
+        color: '#FFFFFF',
       },
     },
   },

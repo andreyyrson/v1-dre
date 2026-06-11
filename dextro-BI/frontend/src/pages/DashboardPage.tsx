@@ -24,10 +24,7 @@ import {
   VStack,
   Flex,
   Text as ChakraText,
-  Icon,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FiFilter } from 'react-icons/fi';
 import Layout from '../components/Layout';
 import KpiCards from '../components/KpiCards';
 import { SkeletonTable } from '../components/SkeletonLoader';
@@ -332,9 +329,9 @@ export default function DashboardPage() {
       <Box p={6}>
         <Card mb={6}>
           <CardBody>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} alignItems="end">
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={4} alignItems="end">
               <FormControl isRequired>
-                <FormLabel>Empresa</FormLabel>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Empresa</FormLabel>
                 <Select
                   value={empresaId}
                   onChange={(e) => setEmpresaId(e.target.value)}
@@ -348,7 +345,7 @@ export default function DashboardPage() {
                 </Select>
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Data Inicial</FormLabel>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Inicial</FormLabel>
                 <Input
                   type="date"
                   value={dataInicial}
@@ -356,17 +353,15 @@ export default function DashboardPage() {
                 />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel>Data Final</FormLabel>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Final</FormLabel>
                 <Input
                   type="date"
                   value={dataFinal}
                   onChange={(e) => setDataFinal(e.target.value)}
                 />
               </FormControl>
-            </Grid>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
               <Button
-                colorScheme="blue"
+                variant="primary"
                 onClick={handleBuscar}
                 isLoading={loading}
                 loadingText="Buscando..."
@@ -374,127 +369,117 @@ export default function DashboardPage() {
               >
                 Buscar
               </Button>
-              <Button
-                colorScheme="gray"
-                onClick={handleRefresh}
-                isDisabled={!empresaId}
-                isLoading={refreshing}
-                loadingText="Atualizando..."
-                w="full"
-              >
-                Atualizar
-              </Button>
-              <Button
-                colorScheme="green"
-                onClick={handleExport}
-                isDisabled={contas.length === 0}
-                w="full"
-              >
-                Exportar Excel
-              </Button>
             </Grid>
-            <Box mt={4}>
+            <Flex mt={4} justify="space-between" align="center" wrap="wrap" gap={3}>
               <Checkbox
                 isChecked={apenasAbertas}
                 onChange={(e) => setApenasAbertas(e.target.checked)}
               >
-                Apenas contas em aberto
+                Apenas em aberto
               </Checkbox>
-            </Box>
+              <Flex gap={3}>
+                <Button
+                  variant="secondary"
+                  onClick={handleRefresh}
+                  isDisabled={!empresaId}
+                  isLoading={refreshing}
+                  loadingText="Atualizando..."
+                  size="sm"
+                >
+                  Atualizar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleExport}
+                  isDisabled={contas.length === 0}
+                  size="sm"
+                >
+                  Exportar Excel
+                </Button>
+              </Flex>
+            </Flex>
           </CardBody>
         </Card>
 
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card mb={6}>
-            <CardBody>
-              <Heading as="h3" size="md" mb={4} display="flex" alignItems="center">
-                <motion.div
-                  animate={{ rotate: 0 }}
-                  transition={{ duration: 0.3 }}
+        <Card mb={6}>
+          <CardBody>
+            <Heading as="h3" size="sm" mb={4} color="#A1A1AA" fontWeight="600" letterSpacing="0.05em" textTransform="uppercase">
+              Filtros Adicionais
+            </Heading>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
+              <FormControl>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Categoria</FormLabel>
+                <Select
+                  value={categoriaId}
+                  onChange={(e) => setCategoriaId(e.target.value)}
+                  placeholder="Todas"
                 >
-                  <Icon as={FiFilter} mr={2} color="primary.500" />
-                </motion.div>
-                Filtros Adicionais
-              </Heading>
-              <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                <FormControl>
-                  <FormLabel>Categoria</FormLabel>
-                  <Select
-                    value={categoriaId}
-                    onChange={(e) => setCategoriaId(e.target.value)}
-                    placeholder="Todas"
-                  >
-                    {getUniqueCategorias().map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.nome}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Fornecedor</FormLabel>
-                  <Select
-                    value={fornecedorId}
-                    onChange={(e) => setFornecedorId(e.target.value)}
-                    placeholder="Todos"
-                  >
-                    {getUniqueFornecedores().map((forn) => (
-                      <option key={forn.id} value={forn.id}>
-                        {forn.nome}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Valor Mínimo</FormLabel>
-                  <Input
-                    type="number"
-                    value={valorMin}
-                    onChange={(e) => setValorMin(e.target.value)}
-                    placeholder="R$ 0,00"
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Valor Máximo</FormLabel>
-                  <Input
-                    type="number"
-                    value={valorMax}
-                    onChange={(e) => setValorMax(e.target.value)}
-                    placeholder="R$ 0,00"
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Conta Financeira</FormLabel>
-                  <Select
-                    value={contaFinanceiraId}
-                    onChange={(e) => setContaFinanceiraId(e.target.value)}
-                    placeholder="Todas"
-                  >
-                    {getUniqueContasFinanceiras().map((conta) => (
-                      <option key={conta.id} value={conta.id}>
-                        {conta.nome}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  {getUniqueCategorias().map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Fornecedor</FormLabel>
+                <Select
+                  value={fornecedorId}
+                  onChange={(e) => setFornecedorId(e.target.value)}
+                  placeholder="Todos"
+                >
+                  {getUniqueFornecedores().map((forn) => (
+                    <option key={forn.id} value={forn.id}>
+                      {forn.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Conta Financeira</FormLabel>
+                <Select
+                  value={contaFinanceiraId}
+                  onChange={(e) => setContaFinanceiraId(e.target.value)}
+                  placeholder="Todas"
+                >
+                  {getUniqueContasFinanceiras().map((conta) => (
+                    <option key={conta.id} value={conta.id}>
+                      {conta.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Valor Mínimo</FormLabel>
+                <Input
+                  type="number"
+                  value={valorMin}
+                  onChange={(e) => setValorMin(e.target.value)}
+                  placeholder="R$ 0,00"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Valor Máximo</FormLabel>
+                <Input
+                  type="number"
+                  value={valorMax}
+                  onChange={(e) => setValorMax(e.target.value)}
+                  placeholder="R$ 0,00"
+                />
+              </FormControl>
+              <Flex align="end">
                 <Button
-                  mt={4}
-                  colorScheme="gray"
+                  variant="ghost"
                   onClick={handleLimparFiltros}
                   isDisabled={contas.length === 0}
+                  size="sm"
                 >
                   Limpar Filtros
                 </Button>
-              </motion.div>
-            </CardBody>
-          </Card>
-        </motion.div>
+              </Flex>
+            </Grid>
+          </CardBody>
+        </Card>
 
         <KpiCards data={kpis} />
 
@@ -513,109 +498,131 @@ export default function DashboardPage() {
             ) : (
               <>
                 <Hide below="md">
-                  <Table variant="simple">
-                    <Thead bg="gray.50">
-                      <Tr>
-                        <Th width="40px">
-                          <motion.div whileTap={{ scale: 0.9 }}>
+                  <Box overflowX="auto">
+                    <Table variant="unstyled" size="sm">
+                      <Thead>
+                        <Tr borderBottom="2px solid #27272A">
+                          <Th width="40px" py={3}>
                             <Checkbox
                               isChecked={selectedIds.size === filteredContas.length && filteredContas.length > 0}
                               isIndeterminate={selectedIds.size > 0 && selectedIds.size < filteredContas.length}
                               onChange={handleSelectAll}
                             />
-                          </motion.div>
-                        </Th>
-                        <Th>Descrição</Th>
-                        <Th>Vencimento</Th>
-                        <Th>Status</Th>
-                        <Th isNumeric>Valor</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {filteredContas.map((conta, i) => {
-                        const isPago = !!conta.data_quitacao;
-                        const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
-                        return (
-                          <motion.tr
-                            key={conta.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            whileHover={{ 
-                              scale: 1.01 
-                            }}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            <Td>
-                              <motion.div whileTap={{ scale: 0.9 }}>
+                          </Th>
+                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Fornecedor</Th>
+                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Vencimento</Th>
+                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Status</Th>
+                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em" isNumeric>Valor</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {filteredContas.map((conta) => {
+                          const isPago = !!conta.data_quitacao;
+                          const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                          const statusConfig = isPago
+                            ? { bg: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)', label: 'Pago' }
+                            : isVencida
+                            ? { bg: 'rgba(234,179,8,0.1)', color: '#EAB308', border: '1px solid rgba(234,179,8,0.2)', label: 'Vencido' }
+                            : { bg: 'rgba(161,161,170,0.1)', color: '#A1A1AA', border: '1px solid rgba(161,161,170,0.2)', label: 'Aberto' };
+                          return (
+                            <Tr
+                              key={conta.id}
+                              borderBottom="1px solid #27272A"
+                              _hover={{ bg: '#1A1A1A' }}
+                              transition="background 0.15s"
+                            >
+                              <Td py={3}>
                                 <Checkbox
                                   isChecked={selectedIds.has(conta.id)}
                                   onChange={() => handleSelectOne(conta.id)}
                                 />
-                              </motion.div>
-                            </Td>
-                            <Td>{conta.descricao || 'Sem descrição'}</Td>
-                            <Td>
-                              {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
-                            </Td>
-                            <Td>
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ type: 'spring' }}
-                              >
-                                <Badge colorScheme={isPago ? 'success' : isVencida ? 'error' : 'info'}>
-                                  {isPago ? 'Pago' : isVencida ? 'Vencida' : 'Em aberto'}
+                              </Td>
+                              <Td py={3}>
+                                <ChakraText fontWeight="500" color="#FFFFFF" fontSize="sm">
+                                  {conta.fornecedor || conta.descricao || 'Sem descrição'}
+                                </ChakraText>
+                                {conta.fornecedor && conta.descricao && (
+                                  <ChakraText color="#52525B" fontSize="xs" mt={0.5}>
+                                    {conta.descricao}
+                                  </ChakraText>
+                                )}
+                              </Td>
+                              <Td py={3} color="#A1A1AA" fontSize="sm">
+                                {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
+                              </Td>
+                              <Td py={3}>
+                                <Badge
+                                  bg={statusConfig.bg}
+                                  color={statusConfig.color}
+                                  border={statusConfig.border}
+                                  borderRadius="full"
+                                  px={2}
+                                  py={0.5}
+                                  fontSize="xs"
+                                  fontWeight="600"
+                                >
+                                  {statusConfig.label}
                                 </Badge>
-                              </motion.div>
-                            </Td>
-                            <Td isNumeric fontFamily="mono">{formatCurrency(conta.valor)}</Td>
-                          </motion.tr>
-                        );
-                      })}
-                    </Tbody>
-                  </Table>
+                              </Td>
+                              <Td py={3} isNumeric fontFamily="mono" color="#FFFFFF" fontSize="sm" fontWeight="600">
+                                {formatCurrency(conta.valor)}
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </Tbody>
+                    </Table>
+                  </Box>
                 </Hide>
                 <Hide above="md">
-                  <VStack spacing={4}>
+                  <VStack spacing={3} align="stretch">
                     {filteredContas.map((conta) => {
                       const isPago = !!conta.data_quitacao;
                       const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                      const statusConfig = isPago
+                        ? { bg: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)', label: 'Pago' }
+                        : isVencida
+                        ? { bg: 'rgba(234,179,8,0.1)', color: '#EAB308', border: '1px solid rgba(234,179,8,0.2)', label: 'Vencido' }
+                        : { bg: 'rgba(161,161,170,0.1)', color: '#A1A1AA', border: '1px solid rgba(161,161,170,0.2)', label: 'Aberto' };
                       return (
-                        <motion.div
-                          key={conta.id}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          style={{ width: '100%' }}
-                        >
-                          <Card p={4} boxShadow="md">
-                            <Flex justify="space-between" align="center" mb={2}>
-                              <ChakraText fontWeight="bold">{conta.descricao || 'Sem descrição'}</ChakraText>
-                              <motion.div whileTap={{ scale: 0.9 }}>
-                                <Checkbox
-                                  isChecked={selectedIds.has(conta.id)}
-                                  onChange={() => handleSelectOne(conta.id)}
-                                />
-                              </motion.div>
-                            </Flex>
-                            <ChakraText color="gray.500" fontSize="sm">
-                              Vencimento: {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
-                            </ChakraText>
-                            <Flex justify="space-between" align="center" mt={2}>
-                              <Badge colorScheme={isPago ? 'success' : isVencida ? 'error' : 'info'}>
-                                {isPago ? 'Pago' : isVencida ? 'Vencida' : 'Em aberto'}
-                              </Badge>
-                              <ChakraText 
-                                fontSize="lg" 
-                                fontWeight="bold" 
-                                color="primary.600"
-                                fontFamily="mono"
-                              >
-                                {formatCurrency(conta.valor)}
+                        <Card key={conta.id} p={4} borderRadius="sm">
+                          <Flex justify="space-between" align="start" mb={2}>
+                            <Box>
+                              <ChakraText fontWeight="500" color="#FFFFFF" fontSize="sm">
+                                {conta.fornecedor || conta.descricao || 'Sem descrição'}
                               </ChakraText>
-                            </Flex>
-                          </Card>
-                        </motion.div>
+                              {conta.fornecedor && conta.descricao && (
+                                <ChakraText color="#52525B" fontSize="xs" mt={0.5}>
+                                  {conta.descricao}
+                                </ChakraText>
+                              )}
+                            </Box>
+                            <Checkbox
+                              isChecked={selectedIds.has(conta.id)}
+                              onChange={() => handleSelectOne(conta.id)}
+                            />
+                          </Flex>
+                          <Flex justify="space-between" align="center">
+                            <ChakraText color="#A1A1AA" fontSize="xs">
+                              {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
+                            </ChakraText>
+                            <Badge
+                              bg={statusConfig.bg}
+                              color={statusConfig.color}
+                              border={statusConfig.border}
+                              borderRadius="full"
+                              px={2}
+                              py={0.5}
+                              fontSize="xs"
+                              fontWeight="600"
+                            >
+                              {statusConfig.label}
+                            </Badge>
+                          </Flex>
+                          <ChakraText fontSize="md" fontWeight="700" color="#FFFFFF" fontFamily="mono" mt={2} textAlign="right">
+                            {formatCurrency(conta.valor)}
+                          </ChakraText>
+                        </Card>
                       );
                     })}
                   </VStack>
