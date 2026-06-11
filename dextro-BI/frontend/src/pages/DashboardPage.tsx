@@ -364,9 +364,9 @@ export default function DashboardPage() {
                 />
               </FormControl>
             </Grid>
-            <Text color="red.500" fontWeight="bold" mt={2}>
+            <ChakraText color="red.500" fontWeight="bold" mt={2}>
               DEBUG: contas.length = {contas.length}
-            </Text>
+            </ChakraText>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button
