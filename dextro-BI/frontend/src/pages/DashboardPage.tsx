@@ -70,6 +70,60 @@ export default function DashboardPage() {
   const [valorMax, setValorMax] = useState('');
   const [contaFinanceiraId, setContaFinanceiraId] = useState('');
   const [filteredContas, setFilteredContas] = useState<Conta[]>([]);
+  const [sortColumn, setSortColumn] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  function handleSort(column: string) {
+    let newDirection: 'asc' | 'desc' = 'asc';
+    if (sortColumn === column) {
+      newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    }
+    setSortColumn(column);
+    setSortDirection(newDirection);
+
+    const sorted = [...filteredContas].sort((a, b) => {
+      let valA: string | number;
+      let valB: string | number;
+
+      switch (column) {
+        case 'fornecedor':
+          valA = a.fornecedor || a.descricao || '';
+          valB = b.fornecedor || b.descricao || '';
+          break;
+        case 'vencimento':
+          valA = a.data_vencimento || '';
+          valB = b.data_vencimento || '';
+          break;
+        case 'valor':
+          valA = a.valor;
+          valB = b.valor;
+          break;
+        case 'status': {
+          const getStatus = (c: Conta) => {
+            if (c.data_quitacao) return 3; // Pago
+            if (c.data_vencimento && new Date(c.data_vencimento) < new Date()) return 2; // Vencido
+            return 1; // Aberto
+          };
+          valA = getStatus(a);
+          valB = getStatus(b);
+          break;
+        }
+        default:
+          return 0;
+      }
+
+      if (valA < valB) return newDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return newDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredContas(sorted);
+  }
+
+  function getSortIcon(column: string) {
+    if (sortColumn !== column) return '';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  }
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -133,6 +187,7 @@ export default function DashboardPage() {
     }
 
     setFilteredContas(filtered);
+    setSortColumn('');
     calcularKpis(filtered);
   }
 
@@ -509,10 +564,59 @@ export default function DashboardPage() {
                               onChange={handleSelectAll}
                             />
                           </Th>
-                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Fornecedor</Th>
-                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Vencimento</Th>
-                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em">Status</Th>
-                          <Th py={3} color="#A1A1AA" fontSize="11px" fontWeight="600" textTransform="uppercase" letterSpacing="0.05em" isNumeric>Valor</Th>
+                          <Th
+                            py={3}
+                            color="#A1A1AA"
+                            fontSize="11px"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="0.05em"
+                            cursor="pointer"
+                            onClick={() => handleSort('fornecedor')}
+                            _hover={{ color: '#FFFFFF' }}
+                          >
+                            Fornecedor{getSortIcon('fornecedor')}
+                          </Th>
+                          <Th
+                            py={3}
+                            color="#A1A1AA"
+                            fontSize="11px"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="0.05em"
+                            cursor="pointer"
+                            onClick={() => handleSort('vencimento')}
+                            _hover={{ color: '#FFFFFF' }}
+                          >
+                            Vencimento{getSortIcon('vencimento')}
+                          </Th>
+                          <Th
+                            py={3}
+                            color="#A1A1AA"
+                            fontSize="11px"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="0.05em"
+                            cursor="pointer"
+                            onClick={() => handleSort('status')}
+                            _hover={{ color: '#FFFFFF' }}
+                          >
+                            Status{getSortIcon('status')}
+                          </Th>
+                          <Th
+                            py={3}
+                            color="#A1A1AA"
+                            fontSize="11px"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="0.05em"
+                            isNumeric
+                            cursor="pointer"
+                            onClick={() => handleSort('valor')}
+                            _hover={{ color: '#FFFFFF' }}
+                          >
+                            Valor{getSortIcon('valor')}
+                          </Th>
                         </Tr>
                       </Thead>
                       <Tbody>
