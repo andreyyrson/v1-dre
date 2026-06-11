@@ -30,7 +30,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         >
           DEXTRO
         </Text>
-        <Button variant="ghost" onClick={handleLogout}>
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          color="#A1A1AA"
+          _hover={{ bg: '#1A1A1A', color: '#FFFFFF' }}
+          size="sm"
+        >
           Sair
         </Button>
       </Flex>
