@@ -388,16 +388,17 @@ export default function DashboardPage() {
                   Atualizar
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  colorScheme="success"
-                  onClick={handleExport}
-                  isDisabled={contas.length === 0}
-                  w="full"
-                >
-                  Exportar Excel
-                </Button>
-              </motion.div>
+              <Button
+                colorScheme="success"
+                onClick={handleExport}
+                isDisabled={contas.length === 0}
+                w="full"
+                _hover={{ transform: 'scale(1.02)' }}
+                _active={{ transform: 'scale(0.98)' }}
+                transition="all 0.2s"
+              >
+                Exportar Excel
+              </Button>
             </Grid>
             <Box mt={4}>
               <Checkbox
