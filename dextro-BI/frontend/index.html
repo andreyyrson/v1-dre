@@ -9,9 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
-      select option { background: #0A0A0A; color: #FFFFFF; }
-      select optgroup { background: #0A0A0A; color: #FFFFFF; }
+      body { background: #0A0A0A; color: #FFFFFF; }
+      select, select option, select optgroup { background-color: #0A0A0A !important; color: #FFFFFF !important; }
       input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: #141414; }
+      ::-webkit-scrollbar-thumb { background: #3F3F46; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #52525B; }
     </style>
   </head>
   <body>

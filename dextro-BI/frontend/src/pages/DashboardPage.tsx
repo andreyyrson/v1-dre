@@ -382,7 +382,7 @@ export default function DashboardPage() {
   return (
     <Layout>
       <Box p={6}>
-        <Card mb={6}>
+        <Card mb={6} bg="#141414" border="1px solid #27272A">
           <CardBody>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={4} alignItems="end">
               <FormControl isRequired>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
           </CardBody>
         </Card>
 
-        <Card mb={6}>
+        <Card mb={6} bg="#141414" border="1px solid #27272A">
           <CardBody>
             <Heading as="h3" size="sm" mb={4} color="#A1A1AA" fontWeight="600" letterSpacing="0.05em" textTransform="uppercase">
               Filtros Adicionais
@@ -538,7 +538,7 @@ export default function DashboardPage() {
 
         <KpiCards data={kpis} />
 
-        <Card>
+        <Card bg="#141414" border="1px solid #27272A">
           <CardBody>
             {loading ? (
               <SkeletonTable count={5} />
@@ -553,8 +553,8 @@ export default function DashboardPage() {
             ) : (
               <>
                 <Hide below="md">
-                  <Box overflowX="auto">
-                    <Table variant="unstyled" size="sm">
+                  <Box overflowX="auto" bg="#0A0A0A">
+                    <Table variant="unstyled" size="sm" color="#FFFFFF">
                       <Thead>
                         <Tr borderBottom="2px solid #27272A">
                           <Th width="40px" py={3}>
@@ -631,22 +631,23 @@ export default function DashboardPage() {
                           return (
                             <Tr
                               key={conta.id}
+                              bg="#0A0A0A"
                               borderBottom="1px solid #27272A"
                               _hover={{ bg: '#1A1A1A' }}
                               transition="background 0.15s"
                             >
-                              <Td py={3}>
+                              <Td py={3} color="#FFFFFF">
                                 <Checkbox
                                   isChecked={selectedIds.has(conta.id)}
                                   onChange={() => handleSelectOne(conta.id)}
                                 />
                               </Td>
-                              <Td py={3}>
+                              <Td py={3} color="#FFFFFF">
                                 <ChakraText fontWeight="500" color="#FFFFFF" fontSize="sm">
                                   {conta.fornecedor || conta.descricao || 'Sem descrição'}
                                 </ChakraText>
                                 {conta.fornecedor && conta.descricao && (
-                                  <ChakraText color="#52525B" fontSize="xs" mt={0.5}>
+                                  <ChakraText color="#71717A" fontSize="xs" mt={0.5}>
                                     {conta.descricao}
                                   </ChakraText>
                                 )}
@@ -654,7 +655,7 @@ export default function DashboardPage() {
                               <Td py={3} color="#A1A1AA" fontSize="sm">
                                 {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
                               </Td>
-                              <Td py={3}>
+                              <Td py={3} color="#FFFFFF">
                                 <Badge
                                   bg={statusConfig.bg}
                                   color={statusConfig.color}
