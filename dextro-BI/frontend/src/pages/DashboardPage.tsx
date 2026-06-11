@@ -405,6 +405,9 @@ export default function DashboardPage() {
                   type="date"
                   value={dataInicial}
                   onChange={(e) => setDataInicial(e.target.value)}
+                  color="#FFFFFF"
+                  readOnly
+                  onFocus={(e) => e.target.showPicker?.()}
                 />
               </FormControl>
               <FormControl isRequired>
@@ -413,6 +416,9 @@ export default function DashboardPage() {
                   type="date"
                   value={dataFinal}
                   onChange={(e) => setDataFinal(e.target.value)}
+                  color="#FFFFFF"
+                  readOnly
+                  onFocus={(e) => e.target.showPicker?.()}
                 />
               </FormControl>
               <Button
