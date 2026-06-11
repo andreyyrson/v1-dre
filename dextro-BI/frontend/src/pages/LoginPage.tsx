@@ -11,16 +11,9 @@ import {
   Heading,
   Text,
   useToast,
-  Icon,
   VStack,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FiLock } from 'react-icons/fi';
 import { login } from '../services/api';
-
-const MotionBox = motion(Box);
-const MotionCard = motion(Card);
-const MotionButton = motion(Button);
 
 export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const [username, setUsername] = useState('');
@@ -65,84 +58,114 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg="linear-gradient(135deg, #FAF5FF 0%, #BEE3F8 100%)"
+      bg="#0A0A0A"
       p={4}
     >
-      <MotionCard
+      <Card
         w="full"
         maxW="400px"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        borderRadius="2xl"
-        boxShadow="2xl"
-        bg="white"
+        borderRadius="sm"
+        boxShadow="none"
+        bg="#141414"
+        border="1px solid #27272A"
       >
         <CardBody p={8}>
-          <MotionBox
-            animate={{ 
-              y: [0, -10, 0],
-              opacity: [0.5, 1, 0.5]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity 
-            }}
+          <Heading
+            size="lg"
             textAlign="center"
-            mb={6}
+            mb={1}
+            color="#FFFFFF"
+            fontWeight="700"
+            letterSpacing="0.02em"
           >
-            <Icon as={FiLock} boxSize={16} color="primary.600" />
-          </MotionBox>
-          <Heading size="lg" textAlign="center" mb={2} color="gray.800">
-            Bem-vindo
+            DEXTRO
           </Heading>
-          <Text color="gray.500" textAlign="center" mb={6}>
-            Entre com suas credenciais para acessar o dashboard
+          <Text
+            color="#A1A1AA"
+            textAlign="center"
+            mb={8}
+            fontSize="sm"
+            fontWeight="500"
+          >
+            Entre com suas credenciais
           </Text>
           <VStack spacing={4} as="form" onSubmit={handleSubmit}>
             <FormControl isRequired>
-              <FormLabel>Usuário</FormLabel>
+              <FormLabel
+                color="#A1A1AA"
+                fontSize="xs"
+                textTransform="uppercase"
+                letterSpacing="0.05em"
+                fontWeight="600"
+              >
+                Usuário
+              </FormLabel>
               <Input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="laura@dextro.com.br"
                 size="lg"
-                borderRadius="md"
+                borderRadius="sm"
+                bg="#0A0A0A"
+                color="#FFFFFF"
+                border="1px solid #27272A"
+                _hover={{ borderColor: '#3F3F46' }}
+                _focus={{ borderColor: '#FFFFFF', boxShadow: 'none' }}
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel>Senha</FormLabel>
+              <FormLabel
+                color="#A1A1AA"
+                fontSize="xs"
+                textTransform="uppercase"
+                letterSpacing="0.05em"
+                fontWeight="600"
+              >
+                Senha
+              </FormLabel>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 size="lg"
-                borderRadius="md"
+                borderRadius="sm"
+                bg="#0A0A0A"
+                color="#FFFFFF"
+                border="1px solid #27272A"
+                _hover={{ borderColor: '#3F3F46' }}
+                _focus={{ borderColor: '#FFFFFF', boxShadow: 'none' }}
               />
             </FormControl>
             {error && (
-              <Text color="error.500" fontSize="sm" textAlign="center">
+              <Text
+                color="#EAB308"
+                fontSize="sm"
+                textAlign="center"
+                fontWeight="500"
+              >
                 {error}
               </Text>
             )}
-            <MotionButton
+            <Button
               type="submit"
-              colorScheme="primary"
               size="lg"
               w="full"
-              borderRadius="md"
+              borderRadius="sm"
               isLoading={loading}
               loadingText="Entrando..."
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              bg="#FFFFFF"
+              color="#0A0A0A"
+              fontWeight="700"
+              _hover={{ bg: '#E4E4E7' }}
+              _active={{ bg: '#D4D4D8' }}
             >
               Entrar
-            </MotionButton>
+            </Button>
           </VStack>
         </CardBody>
-      </MotionCard>
+      </Card>
     </Box>
   );
 }
