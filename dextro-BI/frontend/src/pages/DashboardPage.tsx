@@ -201,7 +201,10 @@ export default function DashboardPage() {
         sort_by: 'data_vencimento',
         order: 'asc',
       });
+      console.log('API Response:', response);
       const itens = response.contas || [];
+      console.log('Itens length:', itens.length);
+      console.log('Setting contas to:', itens);
       setContas(itens);
       applyFilters(itens);
       toast({
