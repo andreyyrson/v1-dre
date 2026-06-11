@@ -365,37 +365,30 @@ export default function DashboardPage() {
               </FormControl>
             </Grid>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4} mt={4}>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  colorScheme="primary"
-                  onClick={handleBuscar}
-                  isLoading={loading}
-                  loadingText="Buscando..."
-                  w="full"
-                >
-                  Buscar
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  colorScheme="gray"
-                  onClick={handleRefresh}
-                  isDisabled={!empresaId}
-                  isLoading={refreshing}
-                  loadingText="Atualizando..."
-                  w="full"
-                >
-                  Atualizar
-                </Button>
-              </motion.div>
               <Button
-                colorScheme="success"
+                colorScheme="blue"
+                onClick={handleBuscar}
+                isLoading={loading}
+                loadingText="Buscando..."
+                w="full"
+              >
+                Buscar
+              </Button>
+              <Button
+                colorScheme="gray"
+                onClick={handleRefresh}
+                isDisabled={!empresaId}
+                isLoading={refreshing}
+                loadingText="Atualizando..."
+                w="full"
+              >
+                Atualizar
+              </Button>
+              <Button
+                colorScheme="green"
                 onClick={handleExport}
                 isDisabled={contas.length === 0}
                 w="full"
-                _hover={{ transform: 'scale(1.02)' }}
-                _active={{ transform: 'scale(0.98)' }}
-                transition="all 0.2s"
               >
                 Exportar Excel
               </Button>
