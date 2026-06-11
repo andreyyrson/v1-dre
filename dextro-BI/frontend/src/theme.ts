@@ -7,6 +7,18 @@ const theme = extendTheme({
     mono: 'JetBrains Mono, monospace',
   },
   colors: {
+    gray: {
+      50: '#0A0A0A',
+      100: '#141414',
+      200: '#1A1A1A',
+      300: '#27272A',
+      400: '#3F3F46',
+      500: '#52525B',
+      600: '#71717A',
+      700: '#A1A1AA',
+      800: '#D4D4D8',
+      900: '#FFFFFF',
+    },
     surface: {
       bg: '#0A0A0A',
       card: '#141414',
