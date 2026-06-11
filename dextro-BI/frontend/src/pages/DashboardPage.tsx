@@ -402,7 +402,7 @@ export default function DashboardPage() {
                 color="#0A0A0A"
                 _hover={{ bg: '#E4E4E7' }}
                 _active={{ bg: '#D4D4D8' }}
-                onClick={handleBuscar}
+                onClick={() => handleBuscar()}
                 isLoading={loading}
                 loadingText="Buscando..."
                 w="full"
