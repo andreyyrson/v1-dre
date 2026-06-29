@@ -1,10 +1,34 @@
-import { extendTheme } from '@chakra-ui/react';
+import { extendTheme, type ThemeConfig } from '@chakra-ui/react';
+
+const config: ThemeConfig = {
+  initialColorMode: 'system',
+  useSystemColorMode: true,
+};
 
 const theme = extendTheme({
+  config,
   fonts: {
     heading: 'Inter, sans-serif',
     body: 'Inter, sans-serif',
     mono: 'JetBrains Mono, monospace',
+  },
+  semanticTokens: {
+    colors: {
+      canvas: { _light: '#F7F7F8', _dark: '#0A0A0A' },
+      surface: { _light: '#FFFFFF', _dark: '#141414' },
+      surfaceHover: { _light: '#F1F1F3', _dark: '#1A1A1A' },
+      inputBg: { _light: '#FFFFFF', _dark: '#0A0A0A' },
+      borderDefault: { _light: '#E4E4E7', _dark: '#27272A' },
+      borderHover: { _light: '#D4D4D8', _dark: '#3F3F46' },
+      borderFocus: { _light: '#18181B', _dark: '#FFFFFF' },
+      textPrimary: { _light: '#18181B', _dark: '#FFFFFF' },
+      textSecondary: { _light: '#52525B', _dark: '#A1A1AA' },
+      textMuted: { _light: '#A1A1AA', _dark: '#52525B' },
+      btnSolidBg: { _light: '#18181B', _dark: '#FFFFFF' },
+      btnSolidColor: { _light: '#FFFFFF', _dark: '#0A0A0A' },
+      btnSolidHover: { _light: '#27272A', _dark: '#E4E4E7' },
+      btnSolidActive: { _light: '#3F3F46', _dark: '#D4D4D8' },
+    },
   },
   colors: {
     gray: {
@@ -49,22 +73,23 @@ const theme = extendTheme({
       },
       variants: {
         primary: {
-          bg: '#FFFFFF',
-          color: '#0A0A0A',
-          _hover: { bg: '#E4E4E7' },
-          _active: { bg: '#D4D4D8' },
+          bg: 'btnSolidBg',
+          color: 'btnSolidColor',
+          _hover: { bg: 'btnSolidHover' },
+          _active: { bg: 'btnSolidActive' },
         },
         secondary: {
           bg: 'transparent',
-          color: '#FFFFFF',
-          border: '1px solid #27272A',
-          _hover: { bg: '#1A1A1A' },
-          _active: { bg: '#27272A' },
+          color: 'textPrimary',
+          border: '1px solid',
+          borderColor: 'borderDefault',
+          _hover: { bg: 'surfaceHover' },
+          _active: { bg: 'borderDefault' },
         },
         ghost: {
           bg: 'transparent',
-          color: '#A1A1AA',
-          _hover: { color: '#FFFFFF', bg: 'transparent' },
+          color: 'textSecondary',
+          _hover: { color: 'textPrimary', bg: 'surfaceHover' },
         },
       },
       defaultProps: {
@@ -73,48 +98,64 @@ const theme = extendTheme({
     },
     Card: {
       baseStyle: {
-        bg: '#141414',
-        borderRadius: 'sm',
-        border: '1px solid #27272A',
-        boxShadow: 'none',
+        container: {
+          bg: 'surface',
+          borderRadius: 'sm',
+          border: '1px solid',
+          borderColor: 'borderDefault',
+          boxShadow: 'none',
+        },
       },
     },
     Input: {
       baseStyle: {
-        bg: '#0A0A0A',
-        borderColor: '#27272A',
-        borderRadius: 'sm',
-        color: '#FFFFFF',
-        _placeholder: { color: '#52525B' },
+        field: {
+          bg: 'inputBg',
+          borderColor: 'borderDefault',
+          borderRadius: 'sm',
+          color: 'textPrimary',
+          _placeholder: { color: 'textMuted' },
+          _hover: { borderColor: 'borderHover' },
+        },
       },
       defaultProps: {
-        focusBorderColor: '#FFFFFF',
+        focusBorderColor: 'borderFocus',
       },
     },
     Select: {
       baseStyle: {
-        bg: '#0A0A0A',
-        borderColor: '#27272A',
-        borderRadius: 'sm',
-        color: '#FFFFFF',
+        field: {
+          bg: 'inputBg',
+          borderColor: 'borderDefault',
+          borderRadius: 'sm',
+          color: 'textPrimary',
+          _hover: { borderColor: 'borderHover' },
+        },
+        icon: {
+          color: 'textSecondary',
+        },
       },
       defaultProps: {
-        focusBorderColor: '#FFFFFF',
+        focusBorderColor: 'borderFocus',
       },
     },
     Checkbox: {
       baseStyle: {
         control: {
-          bg: '#0A0A0A',
-          borderColor: '#27272A',
+          bg: 'inputBg',
+          borderColor: 'borderDefault',
           _checked: {
-            bg: '#FFFFFF',
-            borderColor: '#FFFFFF',
-            color: '#0A0A0A',
+            bg: 'btnSolidBg',
+            borderColor: 'btnSolidBg',
+            color: 'btnSolidColor',
+            _hover: {
+              bg: 'btnSolidHover',
+              borderColor: 'btnSolidHover',
+            },
           },
         },
         label: {
-          color: '#A1A1AA',
+          color: 'textSecondary',
           fontSize: 'sm',
         },
       },
@@ -123,8 +164,8 @@ const theme = extendTheme({
   styles: {
     global: {
       body: {
-        bg: '#0A0A0A',
-        color: '#FFFFFF',
+        bg: 'canvas',
+        color: 'textPrimary',
       },
     },
   },

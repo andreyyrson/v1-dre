@@ -55,6 +55,11 @@ class ContaPagar(BaseModel):
     fornecedor: Optional[str] = Field(default=None, alias="NomeClienteFornecedor")
     documento_fornecedor: Optional[str] = Field(default=None, alias="DocumentoClienteFornecedor")
 
+    id_departamento: Optional[int] = Field(default=None, alias="IdDepartamento")
+    departamento: Optional[str] = Field(default=None, alias="NomeDepartamento")
+    tipo_departamento: Optional[int] = Field(default=None, alias="TipoDepartamento")
+    nome_tipo_departamento: Optional[str] = Field(default=None, alias="NomeTipoDepartamento")
+
     @field_validator(
         "data_vencimento", "data_competencia", "data_quitacao", mode="before"
     )

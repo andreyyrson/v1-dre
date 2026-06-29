@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: dextro-postgres
+    environment:
+      POSTGRES_USER: dextro
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: dextrobi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Porta 5433 para não conflitar com PostgreSQL existente
+    networks:
+      - dextro-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dextro-backend
+    environment:
+      DATABASE_URL: postgresql://dextro:${DB_PASSWORD}@postgres:5432/dextrobi
+      BOMCONTROLE_API_KEY: ${BOMCONTROLE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: 480
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      CORS_ORIGINS: http://187.127.33.245:8001,http://187.127.33.245:8000
+      CACHE_TTL_CONTAS: 300
+      CACHE_TTL_EMPRESAS: 1800
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - dextro-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dextro-frontend
+    ports:
+      - "8001:80"
+    depends_on:
+      - backend
+    networks:
+      - dextro-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  dextro-network:
+    driver: bridge

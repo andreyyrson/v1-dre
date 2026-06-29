@@ -75,20 +75,21 @@ export default function DatePicker({ value, onChange, placeholder = 'Selecione..
           <Input
             value={displayDate}
             readOnly
-            color="#FFFFFF"
+            color="textPrimary"
             cursor="pointer"
             placeholder={placeholder}
           />
           <InputRightElement>
-            <Icon as={FiCalendar} color="#A1A1AA" />
+            <Icon as={FiCalendar} color="textSecondary" />
           </InputRightElement>
         </InputGroup>
       </PopoverTrigger>
       <PopoverContent
-        bg="#141414"
-        border="1px solid #27272A"
+        bg="surface"
+        border="1px solid"
+        borderColor="borderDefault"
         borderRadius="sm"
-        boxShadow="0 4px 20px rgba(0,0,0,0.5)"
+        boxShadow="0 4px 20px rgba(0,0,0,0.25)"
         w="280px"
       >
         <PopoverBody p={3}>
@@ -97,20 +98,20 @@ export default function DatePicker({ value, onChange, placeholder = 'Selecione..
               variant="ghost"
               size="sm"
               onClick={(e) => { e.stopPropagation(); prevMonth(); }}
-              color="#A1A1AA"
-              _hover={{ color: '#FFFFFF', bg: '#1A1A1A' }}
+              color="textSecondary"
+              _hover={{ color: 'textPrimary', bg: 'surfaceHover' }}
             >
               <Icon as={FiChevronLeft} />
             </Button>
-            <Text color="#FFFFFF" fontWeight="600" fontSize="sm">
+            <Text color="textPrimary" fontWeight="600" fontSize="sm">
               {monthNames[month]} {year}
             </Text>
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => { e.stopPropagation(); nextMonth(); }}
-              color="#A1A1AA"
-              _hover={{ color: '#FFFFFF', bg: '#1A1A1A' }}
+              color="textSecondary"
+              _hover={{ color: 'textPrimary', bg: 'surfaceHover' }}
             >
               <Icon as={FiChevronRight} />
             </Button>
@@ -118,7 +119,7 @@ export default function DatePicker({ value, onChange, placeholder = 'Selecione..
 
           <Grid templateColumns="repeat(7, 1fr)" gap={1} mb={2}>
             {weekDays.map((d) => (
-              <Text key={d} color="#52525B" fontSize="10px" textAlign="center" fontWeight="600">
+              <Text key={d} color="textMuted" fontSize="10px" textAlign="center" fontWeight="600">
                 {d}
               </Text>
             ))}
@@ -136,9 +137,9 @@ export default function DatePicker({ value, onChange, placeholder = 'Selecione..
                   fontSize="13px"
                   fontWeight="500"
                   variant="ghost"
-                  bg={isSelected(day) ? '#FFFFFF' : 'transparent'}
-                  color={isSelected(day) ? '#0A0A0A' : '#A1A1AA'}
-                  _hover={{ bg: isSelected(day) ? '#E4E4E7' : '#1A1A1A', color: '#FFFFFF' }}
+                  bg={isSelected(day) ? 'btnSolidBg' : 'transparent'}
+                  color={isSelected(day) ? 'btnSolidColor' : 'textSecondary'}
+                  _hover={{ bg: isSelected(day) ? 'btnSolidHover' : 'surfaceHover', color: isSelected(day) ? 'btnSolidColor' : 'textPrimary' }}
                   borderRadius="sm"
                   onClick={(e) => { e.stopPropagation(); handleSelectDay(day); }}
                 >

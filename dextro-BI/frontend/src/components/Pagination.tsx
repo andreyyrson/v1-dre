@@ -27,9 +27,10 @@ export default function Pagination({
       mt={4}
       px={2}
       py={3}
-      bg="#141414"
+      bg="surface"
       borderRadius="sm"
-      border="1px solid #27272A"
+      border="1px solid"
+      borderColor="borderDefault"
       wrap="wrap"
       gap={3}
     >
@@ -39,20 +40,20 @@ export default function Pagination({
           variant="ghost"
           onClick={() => onPageChange(page - 1)}
           isDisabled={page <= 1}
-          color={page <= 1 ? '#52525B' : '#A1A1AA'}
-          _hover={page <= 1 ? {} : { bg: '#1A1A1A', color: '#FFFFFF' }}
+          color={page <= 1 ? 'textMuted' : 'textSecondary'}
+          _hover={page <= 1 ? {} : { bg: 'surfaceHover', color: 'textPrimary' }}
           leftIcon={<FiChevronLeft />}
         >
           Anterior
         </Button>
 
-        <Text color="#A1A1AA" fontSize="sm" fontWeight="500">
+        <Text color="textSecondary" fontSize="sm" fontWeight="500">
           Página{' '}
-          <Text as="span" color="#FFFFFF" fontWeight="700">
+          <Text as="span" color="textPrimary" fontWeight="700">
             {page}
           </Text>{' '}
           de{' '}
-          <Text as="span" color="#FFFFFF" fontWeight="700">
+          <Text as="span" color="textPrimary" fontWeight="700">
             {totalPages}
           </Text>
         </Text>
@@ -62,8 +63,8 @@ export default function Pagination({
           variant="ghost"
           onClick={() => onPageChange(page + 1)}
           isDisabled={page >= totalPages}
-          color={page >= totalPages ? '#52525B' : '#A1A1AA'}
-          _hover={page >= totalPages ? {} : { bg: '#1A1A1A', color: '#FFFFFF' }}
+          color={page >= totalPages ? 'textMuted' : 'textSecondary'}
+          _hover={page >= totalPages ? {} : { bg: 'surfaceHover', color: 'textPrimary' }}
           rightIcon={<FiChevronRight />}
         >
           Próxima
@@ -71,23 +72,18 @@ export default function Pagination({
       </HStack>
 
       <HStack spacing={3}>
-        <Text color="#A1A1AA" fontSize="sm">
+        <Text color="textSecondary" fontSize="sm">
           {total} total
         </Text>
         <Select
           size="sm"
           value={pageSize}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          bg="#0A0A0A"
-          color="#FFFFFF"
-          border="1px solid #27272A"
-          borderRadius="sm"
           w="100px"
-          _hover={{ borderColor: '#3F3F46' }}
           fontSize="sm"
         >
           {pageSizeOptions.map((opt) => (
-            <option key={opt} value={opt} style={{ background: '#0A0A0A', color: '#FFFFFF' }}>
+            <option key={opt} value={opt}>
               {opt} / pág
             </option>
           ))}

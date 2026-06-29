@@ -2,22 +2,22 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DEXTRO Dashboard v2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
-      /* Force dark theme for all native elements */
-      body { background: #0A0A0A; color: #FFFFFF; }
-      select, select option, select optgroup { background-color: #0A0A0A !important; color: #FFFFFF !important; }
-      input::placeholder { color: #52525B !important; opacity: 1; }
-      input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+      /* Scrollbar adapts to color scheme set by Chakra on <html data-theme> */
       ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: #141414; }
-      ::-webkit-scrollbar-thumb { background: #3F3F46; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #52525B; }
+      ::-webkit-scrollbar-thumb { border-radius: 4px; }
+      :root[data-theme="dark"] ::-webkit-scrollbar-track { background: #141414; }
+      :root[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #3F3F46; }
+      :root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #52525B; }
+      :root[data-theme="light"] ::-webkit-scrollbar-track { background: #F1F1F3; }
+      :root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #C4C4CC; }
+      :root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #A1A1AA; }
     </style>
   </head>
   <body>

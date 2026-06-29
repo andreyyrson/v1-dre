@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -6,7 +6,6 @@ import {
   CardBody,
   FormControl,
   FormLabel,
-  Input,
   Button,
   Select,
   Table,
@@ -51,6 +50,8 @@ interface Conta {
   fornecedor: string | null;
   id_conta_financeira: number | null;
   conta_financeira: string | null;
+  id_departamento: number | null;
+  departamento: string | null;
 }
 
 export default function DashboardPage() {
@@ -66,10 +67,10 @@ export default function DashboardPage() {
   const [kpis, setKpis] = useState({ totalPago: 0, vencidas: 0, agendadas: 0 });
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [apenasAbertas, setApenasAbertas] = useState(false);
+  const [apenasAgendadas, setApenasAgendadas] = useState(false);
   const [categoriaId, setCategoriaId] = useState('');
   const [fornecedorId, setFornecedorId] = useState('');
-  const [valorMin, setValorMin] = useState('');
-  const [valorMax, setValorMax] = useState('');
+  const [departamentoId, setDepartamentoId] = useState('');
   const [contaFinanceiraId, setContaFinanceiraId] = useState('');
   const [filteredContas, setFilteredContas] = useState<Conta[]>([]);
   const [sortColumn, setSortColumn] = useState<string>('');
@@ -78,6 +79,12 @@ export default function DashboardPage() {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const selectedTotal = useMemo(() => {
+    return filteredContas
+      .filter((c) => selectedIds.has(c.id))
+      .reduce((sum, c) => sum + c.valor, 0);
+  }, [filteredContas, selectedIds]);
 
   function handleSort(column: string) {
     let newDirection: 'asc' | 'desc' = 'asc';
@@ -132,7 +139,13 @@ export default function DashboardPage() {
     if (contas.length > 0) {
       applyFilters(contas);
     }
-  }, [categoriaId, fornecedorId, valorMin, valorMax, contaFinanceiraId]);
+  }, [categoriaId, fornecedorId, departamentoId, contaFinanceiraId, apenasAgendadas]);
+
+  useEffect(() => {
+    if (empresaId && dataInicial && dataFinal && contas.length > 0) {
+      handleBuscar();
+    }
+  }, [sortColumn, sortDirection]);
 
   function calcularKpisFromResumo(resumo: any) {
     const totalPago = (resumo.valor_total || 0) - (resumo.valor_vencido || 0) - (resumo.valor_a_vencer || 0);
@@ -150,14 +163,15 @@ export default function DashboardPage() {
     if (fornecedorId) {
       filtered = filtered.filter((c) => String(c.id_fornecedor) === fornecedorId);
     }
-    if (valorMin) {
-      filtered = filtered.filter((c) => c.valor >= Number(valorMin));
-    }
-    if (valorMax) {
-      filtered = filtered.filter((c) => c.valor <= Number(valorMax));
+    if (departamentoId) {
+      filtered = filtered.filter((c) => String(c.id_departamento) === departamentoId);
     }
     if (contaFinanceiraId) {
       filtered = filtered.filter((c) => String(c.id_conta_financeira) === contaFinanceiraId);
+    }
+    if (apenasAgendadas) {
+      const hoje = new Date();
+      filtered = filtered.filter((c) => !c.data_quitacao && c.data_vencimento && new Date(c.data_vencimento) >= hoje);
     }
 
     setFilteredContas(filtered);
@@ -194,11 +208,20 @@ export default function DashboardPage() {
     return Array.from(unique.entries()).map(([id, nome]) => ({ id, nome }));
   }
 
+  function getUniqueDepartamentos() {
+    const unique = new Map();
+    contas.forEach((c) => {
+      if (c.id_departamento && c.departamento) {
+        unique.set(String(c.id_departamento), c.departamento);
+      }
+    });
+    return Array.from(unique.entries()).map(([id, nome]) => ({ id, nome }));
+  }
+
   function handleLimparFiltros() {
     setCategoriaId('');
     setFornecedorId('');
-    setValorMin('');
-    setValorMax('');
+    setDepartamentoId('');
     setContaFinanceiraId('');
     setFilteredContas(contas);
   }
@@ -371,12 +394,26 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <Box p={6}>
-        <Card mb={6} bg="#141414" border="1px solid #27272A">
+      <Box>
+        <Box mb={6}>
+          <Heading
+            as="h1"
+            size="md"
+            color="textPrimary"
+            fontWeight="700"
+            letterSpacing="0.02em"
+          >
+            Contas a Pagar
+          </Heading>
+          <ChakraText color="textSecondary" fontSize="sm" mt={1}>
+            Acompanhe e gerencie os pagamentos do período
+          </ChakraText>
+        </Box>
+        <Card mb={6}>
           <CardBody>
             <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={4} alignItems="end">
               <FormControl isRequired>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Empresa</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase" letterSpacing="0.05em">Empresa</FormLabel>
                 <Select
                   value={empresaId}
                   onChange={(e) => setEmpresaId(e.target.value)}
@@ -390,18 +427,15 @@ export default function DashboardPage() {
                 </Select>
               </FormControl>
               <FormControl isRequired>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Inicial</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase" letterSpacing="0.05em">Data Inicial</FormLabel>
                 <DatePicker value={dataInicial} onChange={setDataInicial} />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase" letterSpacing="0.05em">Data Final</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase" letterSpacing="0.05em">Data Final</FormLabel>
                 <DatePicker value={dataFinal} onChange={setDataFinal} />
               </FormControl>
               <Button
-                bg="#FFFFFF"
-                color="#0A0A0A"
-                _hover={{ bg: '#E4E4E7' }}
-                _active={{ bg: '#D4D4D8' }}
+                variant="primary"
                 onClick={() => handleBuscar()}
                 isLoading={loading}
                 loadingText="Buscando..."
@@ -411,20 +445,33 @@ export default function DashboardPage() {
               </Button>
             </Grid>
             <Flex mt={4} justify="space-between" align="center" wrap="wrap" gap={3}>
-              <Checkbox
-                isChecked={apenasAbertas}
-                onChange={(e) => setApenasAbertas(e.target.checked)}
-                colorScheme="whiteAlpha"
-                iconColor="#0A0A0A"
-              >
-                <ChakraText color="#FFFFFF" fontSize="sm">Apenas em aberto</ChakraText>
-              </Checkbox>
-              <Flex gap={3}>
+              <Flex gap={4} align="center">
+                <Checkbox
+                  isChecked={apenasAbertas}
+                  onChange={(e) => setApenasAbertas(e.target.checked)}
+                >
+                  <ChakraText color="textPrimary" fontSize="sm">Apenas em aberto</ChakraText>
+                </Checkbox>
+                <Checkbox
+                  isChecked={apenasAgendadas}
+                  onChange={(e) => setApenasAgendadas(e.target.checked)}
+                >
+                  <ChakraText color="textPrimary" fontSize="sm">Apenas agendadas</ChakraText>
+                </Checkbox>
+              </Flex>
+              <Flex gap={3} align="center">
+                {selectedIds.size > 0 && (
+                  <ChakraText
+                    color="#3B82F6"
+                    fontSize="sm"
+                    fontWeight="600"
+                    fontFamily="mono"
+                  >
+                    {selectedIds.size} selecionado(s): {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedTotal)}
+                  </ChakraText>
+                )}
                 <Button
-                  bg="transparent"
-                  color="#FFFFFF"
-                  border="1px solid #27272A"
-                  _hover={{ bg: '#1A1A1A' }}
+                  variant="secondary"
                   onClick={handleRefresh}
                   isDisabled={!empresaId}
                   isLoading={refreshing}
@@ -434,10 +481,7 @@ export default function DashboardPage() {
                   Atualizar
                 </Button>
                 <Button
-                  bg="transparent"
-                  color="#FFFFFF"
-                  border="1px solid #27272A"
-                  _hover={{ bg: '#1A1A1A' }}
+                  variant="secondary"
                   onClick={handleExport}
                   isDisabled={contas.length === 0}
                   size="sm"
@@ -449,14 +493,14 @@ export default function DashboardPage() {
           </CardBody>
         </Card>
 
-        <Card mb={6} bg="#141414" border="1px solid #27272A">
+        <Card mb={6}>
           <CardBody>
-            <Heading as="h3" size="sm" mb={4} color="#A1A1AA" fontWeight="600" letterSpacing="0.05em" textTransform="uppercase">
+            <Heading as="h3" size="sm" mb={4} color="textSecondary" fontWeight="600" letterSpacing="0.05em" textTransform="uppercase">
               Filtros Adicionais
             </Heading>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={4}>
               <FormControl>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Categoria</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase">Categoria</FormLabel>
                 <Select
                   value={categoriaId}
                   onChange={(e) => setCategoriaId(e.target.value)}
@@ -470,7 +514,7 @@ export default function DashboardPage() {
                 </Select>
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Fornecedor</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase">Fornecedor</FormLabel>
                 <Select
                   value={fornecedorId}
                   onChange={(e) => setFornecedorId(e.target.value)}
@@ -484,7 +528,21 @@ export default function DashboardPage() {
                 </Select>
               </FormControl>
               <FormControl>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Conta Financeira</FormLabel>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase">Departamento</FormLabel>
+                <Select
+                  value={departamentoId}
+                  onChange={(e) => setDepartamentoId(e.target.value)}
+                  placeholder="Todos"
+                >
+                  {getUniqueDepartamentos().map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.nome}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs" color="textSecondary" textTransform="uppercase">Conta Financeira</FormLabel>
                 <Select
                   value={contaFinanceiraId}
                   onChange={(e) => setContaFinanceiraId(e.target.value)}
@@ -496,24 +554,6 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </Select>
-              </FormControl>
-              <FormControl>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Valor Mínimo</FormLabel>
-                <Input
-                  type="number"
-                  value={valorMin}
-                  onChange={(e) => setValorMin(e.target.value)}
-                  placeholder="R$ 0,00"
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel fontSize="xs" color="#A1A1AA" textTransform="uppercase">Valor Máximo</FormLabel>
-                <Input
-                  type="number"
-                  value={valorMax}
-                  onChange={(e) => setValorMax(e.target.value)}
-                  placeholder="R$ 0,00"
-                />
               </FormControl>
               <Flex align="end">
                 <Button
@@ -531,7 +571,7 @@ export default function DashboardPage() {
 
         <KpiCards data={kpis} />
 
-        <Card bg="#141414" border="1px solid #27272A">
+        <Card>
           <CardBody>
             {loading ? (
               <SkeletonTable count={5} />
@@ -546,10 +586,10 @@ export default function DashboardPage() {
             ) : (
               <>
                 <Hide below="md">
-                  <Box overflowX="auto" bg="#0A0A0A">
-                    <Table variant="unstyled" size="sm" color="#FFFFFF">
+                  <Box overflowX="auto">
+                    <Table variant="unstyled" size="sm" color="textPrimary">
                       <Thead>
-                        <Tr borderBottom="2px solid #27272A">
+                        <Tr borderBottom="2px solid" borderColor="borderDefault">
                           <Th width="40px" py={3}>
                             <Checkbox
                               isChecked={selectedIds.size === filteredContas.length && filteredContas.length > 0}
@@ -559,46 +599,46 @@ export default function DashboardPage() {
                           </Th>
                           <Th
                             py={3}
-                            color="#A1A1AA"
+                            color="textSecondary"
                             fontSize="11px"
                             fontWeight="600"
                             textTransform="uppercase"
                             letterSpacing="0.05em"
                             cursor="pointer"
                             onClick={() => handleSort('fornecedor')}
-                            _hover={{ color: '#FFFFFF' }}
+                            _hover={{ color: 'textPrimary' }}
                           >
                             Fornecedor{getSortIcon('fornecedor')}
                           </Th>
                           <Th
                             py={3}
-                            color="#A1A1AA"
+                            color="textSecondary"
                             fontSize="11px"
                             fontWeight="600"
                             textTransform="uppercase"
                             letterSpacing="0.05em"
                             cursor="pointer"
                             onClick={() => handleSort('vencimento')}
-                            _hover={{ color: '#FFFFFF' }}
+                            _hover={{ color: 'textPrimary' }}
                           >
                             Vencimento{getSortIcon('vencimento')}
                           </Th>
                           <Th
                             py={3}
-                            color="#A1A1AA"
+                            color="textSecondary"
                             fontSize="11px"
                             fontWeight="600"
                             textTransform="uppercase"
                             letterSpacing="0.05em"
                             cursor="pointer"
                             onClick={() => handleSort('status')}
-                            _hover={{ color: '#FFFFFF' }}
+                            _hover={{ color: 'textPrimary' }}
                           >
                             Status{getSortIcon('status')}
                           </Th>
                           <Th
                             py={3}
-                            color="#A1A1AA"
+                            color="textSecondary"
                             fontSize="11px"
                             fontWeight="600"
                             textTransform="uppercase"
@@ -606,7 +646,7 @@ export default function DashboardPage() {
                             isNumeric
                             cursor="pointer"
                             onClick={() => handleSort('valor')}
-                            _hover={{ color: '#FFFFFF' }}
+                            _hover={{ color: 'textPrimary' }}
                           >
                             Valor{getSortIcon('valor')}
                           </Th>
@@ -615,40 +655,45 @@ export default function DashboardPage() {
                       <Tbody>
                         {filteredContas.map((conta) => {
                           const isPago = !!conta.data_quitacao;
-                          const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                          const hoje = new Date();
+                          const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < hoje;
+                          const isAgendada = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) >= hoje;
                           const statusConfig = isPago
                             ? { bg: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)', label: 'Pago' }
                             : isVencida
                             ? { bg: 'rgba(234,179,8,0.1)', color: '#EAB308', border: '1px solid rgba(234,179,8,0.2)', label: 'Vencido' }
+                            : isAgendada
+                            ? { bg: 'rgba(59,130,246,0.1)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.2)', label: 'Agendado' }
                             : { bg: 'rgba(161,161,170,0.1)', color: '#A1A1AA', border: '1px solid rgba(161,161,170,0.2)', label: 'Aberto' };
                           return (
                             <Tr
                               key={conta.id}
-                              bg="#0A0A0A"
-                              borderBottom="1px solid #27272A"
-                              _hover={{ bg: '#1A1A1A' }}
+                              bg="surface"
+                              borderBottom="1px solid"
+                              borderColor="borderDefault"
+                              _hover={{ bg: 'surfaceHover' }}
                               transition="background 0.15s"
                             >
-                              <Td py={3} color="#FFFFFF">
+                              <Td py={3} color="textPrimary">
                                 <Checkbox
                                   isChecked={selectedIds.has(conta.id)}
                                   onChange={() => handleSelectOne(conta.id)}
                                 />
                               </Td>
-                              <Td py={3} color="#FFFFFF">
-                                <ChakraText fontWeight="500" color="#FFFFFF" fontSize="sm">
+                              <Td py={3} color="textPrimary">
+                                <ChakraText fontWeight="500" color="textPrimary" fontSize="sm">
                                   {conta.fornecedor || conta.descricao || 'Sem descrição'}
                                 </ChakraText>
                                 {conta.fornecedor && conta.descricao && (
-                                  <ChakraText color="#71717A" fontSize="xs" mt={0.5}>
+                                  <ChakraText color="textMuted" fontSize="xs" mt={0.5}>
                                     {conta.descricao}
                                   </ChakraText>
                                 )}
                               </Td>
-                              <Td py={3} color="#A1A1AA" fontSize="sm">
+                              <Td py={3} color="textSecondary" fontSize="sm">
                                 {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
                               </Td>
-                              <Td py={3} color="#FFFFFF">
+                              <Td py={3} color="textPrimary">
                                 <Badge
                                   bg={statusConfig.bg}
                                   color={statusConfig.color}
@@ -662,7 +707,7 @@ export default function DashboardPage() {
                                   {statusConfig.label}
                                 </Badge>
                               </Td>
-                              <Td py={3} isNumeric fontFamily="mono" color="#FFFFFF" fontSize="sm" fontWeight="600">
+                              <Td py={3} isNumeric fontFamily="mono" color="textPrimary" fontSize="sm" fontWeight="600">
                                 {formatCurrency(conta.valor)}
                               </Td>
                             </Tr>
@@ -676,21 +721,25 @@ export default function DashboardPage() {
                   <VStack spacing={3} align="stretch">
                     {filteredContas.map((conta) => {
                       const isPago = !!conta.data_quitacao;
-                      const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < new Date();
+                      const hoje = new Date();
+                      const isVencida = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) < hoje;
+                      const isAgendada = !isPago && conta.data_vencimento && new Date(conta.data_vencimento) >= hoje;
                       const statusConfig = isPago
                         ? { bg: 'rgba(34,197,94,0.1)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)', label: 'Pago' }
                         : isVencida
                         ? { bg: 'rgba(234,179,8,0.1)', color: '#EAB308', border: '1px solid rgba(234,179,8,0.2)', label: 'Vencido' }
+                        : isAgendada
+                        ? { bg: 'rgba(59,130,246,0.1)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.2)', label: 'Agendado' }
                         : { bg: 'rgba(161,161,170,0.1)', color: '#A1A1AA', border: '1px solid rgba(161,161,170,0.2)', label: 'Aberto' };
                       return (
                         <Card key={conta.id} p={4} borderRadius="sm">
                           <Flex justify="space-between" align="start" mb={2}>
                             <Box>
-                              <ChakraText fontWeight="500" color="#FFFFFF" fontSize="sm">
+                              <ChakraText fontWeight="500" color="textPrimary" fontSize="sm">
                                 {conta.fornecedor || conta.descricao || 'Sem descrição'}
                               </ChakraText>
                               {conta.fornecedor && conta.descricao && (
-                                <ChakraText color="#52525B" fontSize="xs" mt={0.5}>
+                                <ChakraText color="textMuted" fontSize="xs" mt={0.5}>
                                   {conta.descricao}
                                 </ChakraText>
                               )}
@@ -701,7 +750,7 @@ export default function DashboardPage() {
                             />
                           </Flex>
                           <Flex justify="space-between" align="center">
-                            <ChakraText color="#A1A1AA" fontSize="xs">
+                            <ChakraText color="textSecondary" fontSize="xs">
                               {conta.data_vencimento ? new Date(conta.data_vencimento).toLocaleDateString('pt-BR') : '-'}
                             </ChakraText>
                             <Badge
@@ -717,7 +766,7 @@ export default function DashboardPage() {
                               {statusConfig.label}
                             </Badge>
                           </Flex>
-                          <ChakraText fontSize="md" fontWeight="700" color="#FFFFFF" fontFamily="mono" mt={2} textAlign="right">
+                          <ChakraText fontSize="md" fontWeight="700" color="textPrimary" fontFamily="mono" mt={2} textAlign="right">
                             {formatCurrency(conta.valor)}
                           </ChakraText>
                         </Card>

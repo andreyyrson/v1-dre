@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
   Card,
   CardBody,
   FormControl,
@@ -12,8 +11,13 @@ import {
   Text,
   useToast,
   VStack,
+  Flex,
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiBarChart2 } from 'react-icons/fi';
 import { login } from '../services/api';
+
+const MotionCard = motion(Card);
 
 export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const [username, setUsername] = useState('');
@@ -53,35 +57,48 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
   }
 
   return (
-    <Box
+    <Flex
       minH="100vh"
-      display="flex"
+      direction="column"
       alignItems="center"
       justifyContent="center"
-      bg="#0A0A0A"
+      bg="canvas"
       p={4}
     >
-      <Card
+      <MotionCard
         w="full"
         maxW="400px"
-        borderRadius="sm"
-        boxShadow="none"
-        bg="#141414"
-        border="1px solid #27272A"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
       >
         <CardBody p={8}>
+          <Flex justify="center" mb={5}>
+            <Flex
+              align="center"
+              justify="center"
+              boxSize="48px"
+              borderRadius="lg"
+              bg="canvas"
+              border="1px solid"
+              borderColor="borderDefault"
+              color="textPrimary"
+            >
+              <FiBarChart2 size={22} />
+            </Flex>
+          </Flex>
           <Heading
             size="lg"
             textAlign="center"
             mb={1}
-            color="#FFFFFF"
+            color="textPrimary"
             fontWeight="700"
-            letterSpacing="0.02em"
+            letterSpacing="0.16em"
           >
             DEXTRO
           </Heading>
           <Text
-            color="#A1A1AA"
+            color="textSecondary"
             textAlign="center"
             mb={8}
             fontSize="sm"
@@ -92,7 +109,7 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
           <VStack spacing={4} as="form" onSubmit={handleSubmit}>
             <FormControl isRequired>
               <FormLabel
-                color="#A1A1AA"
+                color="textSecondary"
                 fontSize="xs"
                 textTransform="uppercase"
                 letterSpacing="0.05em"
@@ -106,17 +123,11 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="laura@dextro.com.br"
                 size="lg"
-                borderRadius="sm"
-                bg="#0A0A0A"
-                color="#FFFFFF"
-                border="1px solid #27272A"
-                _hover={{ borderColor: '#3F3F46' }}
-                _focus={{ borderColor: '#FFFFFF', boxShadow: 'none' }}
               />
             </FormControl>
             <FormControl isRequired>
               <FormLabel
-                color="#A1A1AA"
+                color="textSecondary"
                 fontSize="xs"
                 textTransform="uppercase"
                 letterSpacing="0.05em"
@@ -130,12 +141,6 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 size="lg"
-                borderRadius="sm"
-                bg="#0A0A0A"
-                color="#FFFFFF"
-                border="1px solid #27272A"
-                _hover={{ borderColor: '#3F3F46' }}
-                _focus={{ borderColor: '#FFFFFF', boxShadow: 'none' }}
               />
             </FormControl>
             {error && (
@@ -150,22 +155,21 @@ export default function LoginPage({ onLogin }: { onLogin?: () => void }) {
             )}
             <Button
               type="submit"
+              variant="primary"
               size="lg"
               w="full"
-              borderRadius="sm"
               isLoading={loading}
               loadingText="Entrando..."
-              bg="#FFFFFF"
-              color="#0A0A0A"
-              fontWeight="700"
-              _hover={{ bg: '#E4E4E7' }}
-              _active={{ bg: '#D4D4D8' }}
+              mt={2}
             >
               Entrar
             </Button>
           </VStack>
         </CardBody>
-      </Card>
-    </Box>
+      </MotionCard>
+      <Text color="textMuted" fontSize="xs" letterSpacing="0.04em" mt={8}>
+        DEXTRO &copy; 2026 &mdash; Painel Financeiro
+      </Text>
+    </Flex>
   );
 }

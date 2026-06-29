@@ -15,10 +15,10 @@ export const EmptyState = ({ title, description, actionLabel, onAction }: EmptyS
       py={12}
       px={4}
     >
-      <Heading size="md" color="#A1A1AA" mb={2} fontWeight="500">
+      <Heading size="md" color="textSecondary" mb={2} fontWeight="500">
         {title}
       </Heading>
-      <Text color="#52525B" maxW="md" mx="auto" mb={6} fontSize="sm">
+      <Text color="textMuted" maxW="md" mx="auto" mb={6} fontSize="sm">
         {description}
       </Text>
       {actionLabel && onAction && (
